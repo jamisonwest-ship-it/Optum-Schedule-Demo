@@ -2411,9 +2411,12 @@ function renderSchedule() {
   document.getElementById('scheduleMonthLabel').textContent = monthNames[scheduleMonth] + ' ' + scheduleYear;
 
   const days = getDaysInMonth(scheduleYear, scheduleMonth);
-  if (!state.schedule[key]) state.schedule[key] = {};
+  // Auto-populate with defaultShift for weekdays
+  const schedDate = new Date(scheduleYear, scheduleMonth, 1);
+  ensureMonthSchedule(schedDate);
   const sched = state.schedule[key];
   const dayNames = ['S','M','T','W','T','F','S'];
+  const shiftKeys = ['early', 'standard', 'late', 'off'];
   const grid = document.getElementById('scheduleGrid');
   let html = '';
 
@@ -2433,8 +2436,12 @@ function renderSchedule() {
       if (!sched[p.id]) sched[p.id] = {};
       html += '<tr><td class="name-cell">' + esc(p.name) + '</td>';
       for (let d = 1; d <= days; d++) {
-        const checked = sched[p.id][d] ? ' checked' : '';
-        html += '<td><input type="checkbox" class="day-check" data-person="' + p.id + '" data-day="' + d + '"' + checked + '></td>';
+        const val = sched[p.id][d] || 'off';
+        html += '<td><select class="shift-select shift-' + val + '" data-person="' + p.id + '" data-day="' + d + '">';
+        shiftKeys.forEach(sk => {
+          html += '<option value="' + sk + '"' + (val === sk ? ' selected' : '') + '>' + SHIFT_TEMPLATES[sk].short + '</option>';
+        });
+        html += '</select></td>';
       }
       html += '</tr>';
     });
@@ -2443,12 +2450,14 @@ function renderSchedule() {
 
   grid.innerHTML = html;
 
-  grid.querySelectorAll('.day-check').forEach(cb => {
-    cb.addEventListener('change', () => {
+  grid.querySelectorAll('.shift-select').forEach(sel => {
+    sel.addEventListener('change', () => {
       const k = getScheduleKey(scheduleYear, scheduleMonth);
       if (!state.schedule[k]) state.schedule[k] = {};
-      if (!state.schedule[k][cb.dataset.person]) state.schedule[k][cb.dataset.person] = {};
-      state.schedule[k][cb.dataset.person][parseInt(cb.dataset.day)] = cb.checked;
+      if (!state.schedule[k][sel.dataset.person]) state.schedule[k][sel.dataset.person] = {};
+      state.schedule[k][sel.dataset.person][parseInt(sel.dataset.day)] = sel.value;
+      // Update visual color
+      sel.className = 'shift-select shift-' + sel.value;
       saveState();
     });
   });
@@ -2458,6 +2467,7 @@ document.getElementById('applyScheduleBtn').addEventListener('click', () => {
   const now = new Date();
   const key = getScheduleKey(now.getFullYear(), now.getMonth());
   const day = now.getDate();
+  ensureMonthSchedule(now);
   const sched = state.schedule[key];
 
   if (!sched) {
@@ -2467,7 +2477,8 @@ document.getElementById('applyScheduleBtn').addEventListener('click', () => {
 
   let applied = 0;
   state.staff.forEach(p => {
-    const isScheduled = sched[p.id] && sched[p.id][day];
+    const shift = (sched[p.id] && sched[p.id][day]) || 'off';
+    const isScheduled = shift !== 'off';
     const oldSt = state.statuses[p.id];
     const newSt = isScheduled ? 'working' : 'out';
     if (oldSt !== newSt) {

@@ -1572,7 +1572,7 @@ body {
     <div class="admin-content">
       <div class="admin-section active" id="adminStaff">
         <table class="staff-table" id="staffTable">
-          <thead><tr><th>Name</th><th>Role</th><th>Department</th><th></th></tr></thead>
+          <thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Default Shift</th><th></th></tr></thead>
           <tbody id="staffTableBody"></tbody>
         </table>
         <div class="add-staff-form">
@@ -1585,6 +1585,11 @@ body {
             <option value="home_infusion">Home Infusion</option>
             <option value="hospice">Hospice</option>
             <option value="specialty">Specialty Pharmacy</option>
+          </select>
+          <select class="form-select" id="newShift">
+            <option value="early">Early (7a–3p)</option>
+            <option value="standard" selected>Standard (8a–5p)</option>
+            <option value="late">Late (10a–6p)</option>
           </select>
           <button class="btn-primary" id="addStaffBtn">Add</button>
         </div>
@@ -2337,11 +2342,15 @@ document.querySelectorAll('.admin-tab').forEach(tab => {
 
 function renderStaffTable() {
   const tbody = document.getElementById('staffTableBody');
+  const shiftKeys = ['early', 'standard', 'late'];
   tbody.innerHTML = state.staff.map(s => {
     const dept = DEPARTMENTS.find(d => d.id === s.dept);
+    let shiftOpts = shiftKeys.map(sk =>
+      '<option value="' + sk + '"' + (s.defaultShift === sk ? ' selected' : '') + '>' + SHIFT_TEMPLATES[sk].label + '</option>'
+    ).join('');
     return '<tr><td>' + esc(s.name) + '</td><td>' +
       (s.role === 'pharmacist' ? 'Pharmacist' : 'Pharmacy Tech') + '</td><td>' +
-      esc(dept?.name || s.dept) + '</td><td><button class="btn-remove" data-id="' + s.id + '">Remove</button></td></tr>';
+      esc(dept?.name || s.dept) + '</td><td><select class="form-select" data-shift-for="' + s.id + '" style="padding:6px 8px;min-height:32px;font-size:12px">' + shiftOpts + '</select></td><td><button class="btn-remove" data-id="' + s.id + '">Remove</button></td></tr>';
   }).join('');
 
   tbody.querySelectorAll('.btn-remove').forEach(btn => {
@@ -2357,6 +2366,16 @@ function renderStaffTable() {
       }
     });
   });
+
+  tbody.querySelectorAll('select[data-shift-for]').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const person = state.staff.find(s => s.id === sel.dataset.shiftFor);
+      if (person) {
+        person.defaultShift = sel.value;
+        saveState();
+      }
+    });
+  });
 }
 
 document.getElementById('addStaffBtn').addEventListener('click', () => {
@@ -2364,9 +2383,10 @@ document.getElementById('addStaffBtn').addEventListener('click', () => {
   const name = nameEl.value.trim();
   const role = document.getElementById('newRole').value;
   const dept = document.getElementById('newDept').value;
+  const shift = document.getElementById('newShift').value;
   if (!name) { nameEl.focus(); return; }
   const id = 's' + (state.nextId++);
-  state.staff.push({ id, name, role, dept });
+  state.staff.push({ id, name, role, dept, defaultShift: shift });
   state.statuses[id] = 'out';
   saveState();
   nameEl.value = '';

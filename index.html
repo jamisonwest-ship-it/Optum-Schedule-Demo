@@ -2,7 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <title>Pharmacy Ratio Tracker</title>
 <style>
 /* ── Reset & Base ────────────────────────────────────────────── */
@@ -10,245 +17,451 @@
 
 :root {
   --green: #16a34a;
-  --green-bg: #dcfce7;
+  --green-bg: #f0fdf4;
   --green-border: #86efac;
-  --yellow: #ca8a04;
-  --yellow-bg: #fef9c3;
-  --yellow-border: #fde047;
+  --green-subtle: #bbf7d0;
+  --yellow: #d97706;
+  --yellow-bg: #fffbeb;
+  --yellow-border: #fcd34d;
+  --yellow-subtle: #fde68a;
   --red: #dc2626;
-  --red-bg: #fee2e2;
+  --red-bg: #fef2f2;
   --red-border: #fca5a5;
+  --red-subtle: #fecaca;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
   --gray-200: #e5e7eb;
   --gray-300: #d1d5db;
   --gray-400: #9ca3af;
-  --gray-500: #6b7285;
+  --gray-500: #6b7280;
   --gray-600: #4b5563;
   --gray-700: #374151;
   --gray-800: #1f2937;
   --gray-900: #111827;
   --blue: #2563eb;
-  --blue-light: #dbeafe;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
-  --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
-  --shadow-md: 0 4px 6px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.06);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,.1), 0 4px 6px rgba(0,0,0,.04);
-  --radius: 8px;
-  --radius-lg: 12px;
+  --blue-bg: #eff6ff;
+  --blue-border: #93c5fd;
+  --purple: #7c3aed;
+  --purple-bg: #f5f3ff;
+  --purple-border: #c4b5fd;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow: 0 2px 8px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.1), 0 2px 4px rgba(0,0,0,.04);
+  --shadow-lg: 0 12px 24px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.04);
+  --shadow-xl: 0 20px 40px rgba(0,0,0,.15);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+  --ease-out: cubic-bezier(.2, .8, .2, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+  overscroll-behavior: none;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background: var(--gray-100);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--gray-50);
   color: var(--gray-800);
   line-height: 1.5;
   min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  touch-action: manipulation;
+  padding-bottom: calc(var(--safe-bottom) + 70px);
+}
+
+@media (min-width: 901px) {
+  body { padding-bottom: 0; }
+}
+
+/* ── Utility ─────────────────────────────────────────────────── */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); border: 0;
 }
 
 /* ── Top Bar ─────────────────────────────────────────────────── */
 .top-bar {
   background: var(--gray-900);
   color: #fff;
-  padding: 12px 20px;
+  padding: 10px 16px;
+  padding-top: calc(10px + var(--safe-top));
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
   gap: 10px;
   position: sticky;
   top: 0;
   z-index: 100;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(17, 24, 39, .92);
 }
 
 .top-bar h1 {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: -.3px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.4px;
+  white-space: nowrap;
 }
 
 .top-bar-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .top-bar .role-select {
-  background: var(--gray-700);
+  background: rgba(255,255,255,.1);
   color: #fff;
-  border: 1px solid var(--gray-600);
-  border-radius: 6px;
-  padding: 6px 10px;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+  padding: 8px 12px;
   font-size: 13px;
+  font-family: inherit;
   cursor: pointer;
+  max-width: 180px;
+  transition: background .15s;
+  min-height: 40px;
 }
+.top-bar .role-select:focus { background: rgba(255,255,255,.18); outline: 2px solid var(--blue); outline-offset: 1px; }
 
-.top-bar .btn-admin {
-  background: var(--gray-700);
-  color: #fff;
-  border: 1px solid var(--gray-600);
-  border-radius: 6px;
-  padding: 6px 14px;
-  font-size: 13px;
-  cursor: pointer;
-  font-weight: 500;
-}
-.top-bar .btn-admin:hover { background: var(--gray-600); }
-
-/* ── Overall Ratio Banner ────────────────────────────────────── */
-.overall-banner {
-  padding: 16px 20px;
+.top-bar .btn-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.top-bar .btn-icon:hover { background: rgba(255,255,255,.18); }
+.top-bar .btn-icon:active { transform: scale(.95); }
+
+/* ── Overall Ratio Banner ────────────────────────────────────── */
+.overall-banner {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   flex-wrap: wrap;
   font-weight: 600;
-  font-size: 15px;
-  transition: background .3s, color .3s;
+  font-size: 14px;
+  transition: all .4s var(--ease-out);
+  border-bottom: 1px solid transparent;
 }
-.overall-banner.status-green  { background: var(--green-bg); color: var(--green); }
-.overall-banner.status-yellow { background: var(--yellow-bg); color: var(--yellow); }
-.overall-banner.status-red    { background: var(--red-bg); color: var(--red); }
+.overall-banner.status-green  { background: var(--green-bg); color: #15803d; border-color: var(--green-subtle); }
+.overall-banner.status-yellow { background: var(--yellow-bg); color: #b45309; border-color: var(--yellow-subtle); }
+.overall-banner.status-red    { background: var(--red-bg); color: #b91c1c; border-color: var(--red-subtle); }
 
-.overall-banner .ratio-pill {
+.overall-banner .status-icon {
+  width: 32px; height: 32px;
+  border-radius: var(--radius-full);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800;
+  flex-shrink: 0;
+}
+.status-green .status-icon  { background: var(--green); color: #fff; }
+.status-yellow .status-icon { background: var(--yellow); color: #fff; }
+.status-red .status-icon    { background: var(--red); color: #fff; }
+
+.overall-banner .ratio-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+.overall-banner .ratio-text .ratio-numbers {
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.3px;
+}
+.overall-banner .ratio-text .ratio-label {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: .75;
+}
+
+/* ── Legend ───────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px;
+  justify-content: center;
+}
+.legend-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 14px;
-  border-radius: 20px;
-  font-size: 14px;
-  font-weight: 700;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-500);
+  background: #fff;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--gray-200);
 }
-.status-green .ratio-pill  { background: var(--green); color: #fff; }
-.status-yellow .ratio-pill { background: var(--yellow); color: #fff; }
-.status-red .ratio-pill    { background: var(--red); color: #fff; }
+.legend-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
 
 /* ── Main Layout ─────────────────────────────────────────────── */
 .main-layout {
   display: flex;
   gap: 0;
-  max-width: 1600px;
+  max-width: 1440px;
   margin: 0 auto;
 }
 
 .departments-area {
   flex: 1;
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   min-width: 0;
 }
 
+@media (min-width: 901px) {
+  .departments-area { padding: 16px 20px; gap: 16px; }
+}
+
+/* ── Log Panel (Desktop Sidebar) ─────────────────────────────── */
 .log-panel {
-  width: 340px;
+  width: 320px;
   flex-shrink: 0;
   background: #fff;
   border-left: 1px solid var(--gray-200);
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 110px);
+  height: calc(100vh - 100px);
   position: sticky;
-  top: 110px;
+  top: 100px;
 }
 
 .log-panel-header {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--gray-200);
-  font-weight: 600;
-  font-size: 15px;
+  padding: 16px;
+  border-bottom: 1px solid var(--gray-100);
+  font-weight: 700;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.log-panel-header .btn-clear-log {
+.log-panel-header .btn-clear {
   font-size: 12px;
   color: var(--gray-400);
   background: none;
   border: none;
   cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: color .15s, background .15s;
 }
-.log-panel-header .btn-clear-log:hover { color: var(--gray-600); }
+.log-panel-header .btn-clear:hover { color: var(--red); background: var(--red-bg); }
 
 .log-entries {
   flex: 1;
   overflow-y: auto;
-  padding: 8px 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .log-entry {
-  padding: 8px 16px;
-  border-bottom: 1px solid var(--gray-100);
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--gray-50);
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.45;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  transition: background .15s;
+}
+.log-entry:active { background: var(--gray-50); }
+
+.log-entry .log-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-size: 14px;
+  margin-top: 1px;
+}
+.log-icon.to-working  { background: var(--green-bg); color: var(--green); }
+.log-icon.to-lunch    { background: var(--yellow-bg); color: var(--yellow); }
+.log-icon.to-meeting  { background: var(--blue-bg); color: var(--blue); }
+.log-icon.to-out      { background: var(--gray-100); color: var(--gray-400); }
+.log-icon.to-nontech  { background: var(--purple-bg); color: var(--purple); }
+
+.log-entry .log-content { flex: 1; min-width: 0; }
+
+.log-entry .log-name {
+  font-weight: 600;
+  color: var(--gray-800);
+}
+
+.log-entry .log-transition {
+  color: var(--gray-500);
+  font-size: 12px;
+}
+
+.log-entry .log-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
 }
 
 .log-entry .log-time {
   color: var(--gray-400);
   font-size: 11px;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
-}
-
-.log-entry .log-name {
-  font-weight: 600;
 }
 
 .log-entry .log-dept {
   color: var(--gray-400);
   font-size: 11px;
+  font-weight: 500;
+}
+
+.log-empty {
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--gray-400);
+  font-size: 13px;
 }
 
 /* ── Department Card ─────────────────────────────────────────── */
 .dept-card {
   background: #fff;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
-  transition: box-shadow .2s;
+  border: 1px solid var(--gray-100);
+  transition: box-shadow .3s;
 }
 
 .dept-header {
-  padding: 14px 20px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px;
-  transition: background .3s, color .3s;
+  gap: 10px;
+  transition: all .35s var(--ease-out);
 }
-.dept-header.status-green  { background: var(--green-bg); color: var(--green); border-bottom: 2px solid var(--green-border); }
-.dept-header.status-yellow { background: var(--yellow-bg); color: var(--yellow); border-bottom: 2px solid var(--yellow-border); }
-.dept-header.status-red    { background: var(--red-bg); color: var(--red); border-bottom: 2px solid var(--red-border); }
+.dept-header.status-green  { background: var(--green-bg); border-bottom: 2px solid var(--green-border); }
+.dept-header.status-yellow { background: var(--yellow-bg); border-bottom: 2px solid var(--yellow-border); }
+.dept-header.status-red    { background: var(--red-bg); border-bottom: 2px solid var(--red-border); }
 
-.dept-header h2 { font-size: 16px; font-weight: 700; }
+.dept-header .dept-info h2 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -.2px;
+}
+.dept-header.status-green  .dept-info h2 { color: #15803d; }
+.dept-header.status-yellow .dept-info h2 { color: #b45309; }
+.dept-header.status-red    .dept-info h2 { color: #b91c1c; }
 
-.dept-stats {
+.dept-header .dept-info .dept-subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  opacity: .7;
+}
+
+.dept-header .dept-ratio-block {
   display: flex;
-  gap: 16px;
-  font-size: 13px;
-  font-weight: 600;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.dept-ratio {
-  font-size: 20px;
+.dept-ratio-block .ratio-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.5px;
+  min-width: 56px;
+  text-align: center;
+}
+.status-green  .ratio-badge { color: var(--green); }
+.status-yellow .ratio-badge { color: var(--yellow); }
+.status-red    .ratio-badge { color: var(--red); }
+
+.dept-ratio-block .ratio-bar-wrap {
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ratio-bar-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(0,0,0,.08);
+  overflow: hidden;
+}
+
+.ratio-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width .4s var(--ease-out), background .4s;
+  min-width: 2px;
+}
+.status-green  .ratio-bar-fill { background: var(--green); }
+.status-yellow .ratio-bar-fill { background: var(--yellow); }
+.status-red    .ratio-bar-fill { background: var(--red); }
+
+.ratio-bar-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
   font-variant-numeric: tabular-nums;
 }
 
-.dept-body { padding: 12px 20px 20px; }
+.dept-body {
+  padding: 12px 16px 16px;
+}
 
-.role-section { margin-bottom: 12px; }
+.role-section { margin-bottom: 10px; }
 .role-section:last-child { margin-bottom: 0; }
 
 .role-label {
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: .8px;
   color: var(--gray-400);
   font-weight: 700;
   margin-bottom: 6px;
+  padding-left: 2px;
 }
 
 .staff-grid {
@@ -261,175 +474,289 @@ body {
 .staff-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 8px;
+  gap: 7px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   border: 1.5px solid transparent;
-  transition: all .15s;
+  transition: all .2s var(--ease-out);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-  min-height: 42px;
+  min-height: 48px;
+  touch-action: manipulation;
+  position: relative;
 }
 .staff-chip:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-.staff-chip:active { transform: translateY(0); }
+.staff-chip:active { transform: scale(.97); box-shadow: var(--shadow-xs); }
 
 .staff-chip .chip-dot {
   width: 8px; height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
+  position: relative;
 }
 
-.staff-chip.status-working       { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+.staff-chip.status-working .chip-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid var(--green);
+  opacity: .4;
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: .4; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.staff-chip.status-working       { background: var(--green-bg); border-color: var(--green-border); color: #15803d; }
 .staff-chip.status-working .chip-dot { background: var(--green); }
 
-.staff-chip.status-lunch         { background: #fef3c7; border-color: #fcd34d; color: #b45309; }
-.staff-chip.status-lunch .chip-dot   { background: #f59e0b; }
+.staff-chip.status-lunch         { background: var(--yellow-bg); border-color: var(--yellow-border); color: #b45309; }
+.staff-chip.status-lunch .chip-dot   { background: var(--yellow); }
 
-.staff-chip.status-meeting       { background: var(--blue-light); border-color: #93c5fd; color: #1d4ed8; }
+.staff-chip.status-meeting       { background: var(--blue-bg); border-color: var(--blue-border); color: #1d4ed8; }
 .staff-chip.status-meeting .chip-dot { background: var(--blue); }
 
 .staff-chip.status-out           { background: var(--gray-100); border-color: var(--gray-200); color: var(--gray-400); }
 .staff-chip.status-out .chip-dot     { background: var(--gray-300); }
 
-.staff-chip.status-nontech       { background: #f3e8ff; border-color: #c4b5fd; color: #7c3aed; }
-.staff-chip.status-nontech .chip-dot { background: #8b5cf6; }
+.staff-chip.status-nontech       { background: var(--purple-bg); border-color: var(--purple-border); color: #6d28d9; }
+.staff-chip.status-nontech .chip-dot { background: var(--purple); }
 
 .staff-chip.disabled {
   cursor: default;
-  opacity: .75;
+  opacity: .6;
 }
 .staff-chip.disabled:hover { box-shadow: none; transform: none; }
+.staff-chip.disabled:active { transform: none; }
 
-/* ── Status Modal ────────────────────────────────────────────── */
+/* ── Status Modal (Bottom Sheet) ─────────────────────────────── */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.45);
+  background: rgba(0,0,0,.5);
   z-index: 200;
   display: flex;
   align-items: flex-end;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .2s;
+  transition: opacity .25s var(--ease-out);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
-.modal-overlay.open {
-  opacity: 1;
-  pointer-events: auto;
-}
+.modal-overlay.open { opacity: 1; pointer-events: auto; }
 
 .modal-card {
   background: #fff;
-  border-radius: 16px 16px 0 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   width: 100%;
-  max-width: 420px;
-  padding: 24px 20px 32px;
+  max-width: 480px;
+  padding: 0 20px calc(20px + var(--safe-bottom));
   transform: translateY(100%);
-  transition: transform .25s ease-out;
+  transition: transform .35s var(--ease-spring);
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
-.modal-overlay.open .modal-card {
-  transform: translateY(0);
+.modal-overlay.open .modal-card { transform: translateY(0); }
+
+@media (min-width: 600px) {
+  .modal-overlay { align-items: center; }
+  .modal-card {
+    border-radius: var(--radius-xl);
+    max-width: 400px;
+    padding: 0 24px 24px;
+    max-height: 80vh;
+  }
+}
+
+.modal-handle-area {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 8px;
+  cursor: grab;
+}
+.modal-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--gray-300);
+}
+@media (min-width: 600px) {
+  .modal-handle-area { display: none; }
+}
+
+.modal-header {
+  padding: 4px 0 16px;
 }
 
 .modal-name {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  margin-bottom: 4px;
+  letter-spacing: -.3px;
+  color: var(--gray-900);
 }
 
 .modal-dept {
   font-size: 13px;
-  color: var(--gray-400);
-  margin-bottom: 16px;
+  color: var(--gray-500);
+  font-weight: 500;
+  margin-top: 2px;
 }
 
 .modal-options {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .modal-option {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: var(--radius);
-  border: 1.5px solid var(--gray-200);
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--gray-100);
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all .15s;
+  transition: all .2s var(--ease-out);
   background: #fff;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 56px;
+  font-family: inherit;
 }
-.modal-option:hover { border-color: var(--gray-300); background: var(--gray-50); }
-.modal-option:active { background: var(--gray-100); }
-.modal-option.selected { border-color: var(--blue); background: var(--blue-light); }
+.modal-option:hover { border-color: var(--gray-200); background: var(--gray-50); }
+.modal-option:active { transform: scale(.98); }
+.modal-option.selected {
+  border-color: var(--blue);
+  background: var(--blue-bg);
+  box-shadow: 0 0 0 2px rgba(37,99,235,.15);
+}
 
 .modal-option .opt-dot {
-  width: 10px; height: 10px;
+  width: 12px; height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.modal-close {
-  margin-top: 16px;
+.modal-option .opt-label { flex: 1; }
+
+.modal-option .opt-check {
+  font-size: 16px;
+  color: var(--blue);
+  opacity: 0;
+  transition: opacity .15s;
+}
+.modal-option.selected .opt-check { opacity: 1; }
+
+.modal-cancel {
+  margin-top: 12px;
   width: 100%;
-  padding: 12px;
-  border-radius: var(--radius);
+  padding: 14px;
+  border-radius: var(--radius-lg);
   border: none;
   background: var(--gray-100);
   color: var(--gray-600);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
+  min-height: 52px;
+  transition: background .15s;
+  touch-action: manipulation;
 }
-.modal-close:hover { background: var(--gray-200); }
+.modal-cancel:hover { background: var(--gray-200); }
+.modal-cancel:active { transform: scale(.98); }
 
-/* ── Admin / Schedule Panel ──────────────────────────────────── */
+/* ── Admin Panel ─────────────────────────────────────────────── */
 .admin-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.45);
+  background: rgba(0,0,0,.5);
   z-index: 200;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity .2s;
+  transition: opacity .25s var(--ease-out);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  padding: 16px;
 }
 .admin-overlay.open { opacity: 1; pointer-events: auto; }
 
 .admin-panel {
   background: #fff;
-  border-radius: var(--radius-lg);
-  width: 95%;
+  border-radius: var(--radius-xl);
+  width: 100%;
   max-width: 900px;
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-  padding: 24px;
-  transform: scale(.95);
-  transition: transform .2s;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  box-shadow: var(--shadow-xl);
+  transform: scale(.95) translateY(8px);
+  transition: transform .3s var(--ease-spring);
 }
-.admin-overlay.open .admin-panel { transform: scale(1); }
+.admin-overlay.open .admin-panel { transform: scale(1) translateY(0); }
 
-.admin-panel h2 { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+.admin-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px 0;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+.admin-panel-header h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.3px;
+}
+
+.admin-panel-header .btn-close {
+  width: 36px; height: 36px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+  font-family: inherit;
+}
+.admin-panel-header .btn-close:hover { background: var(--gray-200); }
 
 .admin-tabs {
   display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-  border-bottom: 2px solid var(--gray-200);
+  gap: 0;
+  padding: 16px 20px 0;
+  position: sticky;
+  top: 56px;
+  background: #fff;
+  z-index: 1;
 }
 
 .admin-tab {
-  padding: 8px 16px;
+  padding: 10px 20px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -437,11 +764,14 @@ body {
   background: none;
   color: var(--gray-400);
   border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
   transition: color .15s;
+  font-family: inherit;
+  min-height: 48px;
 }
 .admin-tab:hover { color: var(--gray-600); }
 .admin-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+.admin-content { padding: 20px; }
 
 .admin-section { display: none; }
 .admin-section.active { display: block; }
@@ -455,73 +785,83 @@ body {
 
 .staff-table th {
   text-align: left;
-  padding: 8px 12px;
-  border-bottom: 2px solid var(--gray-200);
-  font-size: 12px;
+  padding: 10px 12px;
+  border-bottom: 2px solid var(--gray-100);
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: .5px;
   color: var(--gray-400);
+  font-weight: 600;
 }
 
 .staff-table td {
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--gray-100);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--gray-50);
+  font-size: 14px;
 }
 
 .staff-table tr:hover td { background: var(--gray-50); }
 
 .staff-table .btn-remove {
   color: var(--red);
-  background: none;
+  background: var(--red-bg);
   border: none;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: background .15s;
+  min-height: 36px;
 }
+.staff-table .btn-remove:hover { background: var(--red-subtle); }
 
 .add-staff-form {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 16px;
   flex-wrap: wrap;
+  padding: 16px;
+  background: var(--gray-50);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--gray-100);
 }
 
-.add-staff-form input, .add-staff-form select {
-  padding: 8px 12px;
+.form-input, .form-select {
+  padding: 10px 14px;
   border: 1.5px solid var(--gray-200);
-  border-radius: 6px;
+  border-radius: var(--radius);
   font-size: 14px;
+  font-family: inherit;
+  min-height: 44px;
+  background: #fff;
+  transition: border-color .15s;
 }
-.add-staff-form input:focus, .add-staff-form select:focus {
+.form-input:focus, .form-select:focus {
   outline: none;
   border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
 }
 
 .btn-primary {
   background: var(--blue);
   color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: 8px 18px;
+  border-radius: var(--radius);
+  padding: 10px 20px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  font-family: inherit;
+  min-height: 44px;
+  transition: all .15s;
+  touch-action: manipulation;
 }
-.btn-primary:hover { opacity: .9; }
+.btn-primary:hover { background: #1d4ed8; }
+.btn-primary:active { transform: scale(.97); }
 
-.btn-secondary {
-  background: var(--gray-100);
-  color: var(--gray-600);
-  border: 1px solid var(--gray-200);
-  border-radius: 6px;
-  padding: 8px 18px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.btn-secondary:hover { background: var(--gray-200); }
-
-/* Schedule section */
+/* Schedule */
 .schedule-controls {
   display: flex;
   gap: 10px;
@@ -530,30 +870,58 @@ body {
   flex-wrap: wrap;
 }
 
-.schedule-controls select, .schedule-controls input {
-  padding: 8px 12px;
-  border: 1.5px solid var(--gray-200);
-  border-radius: 6px;
-  font-size: 14px;
+.schedule-month-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.schedule-grid {
-  overflow-x: auto;
+.schedule-month-nav button {
+  width: 36px; height: 36px;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  background: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+  font-family: inherit;
 }
+.schedule-month-nav button:hover { background: var(--gray-100); }
+
+.schedule-month-nav .month-label {
+  font-weight: 700;
+  font-size: 15px;
+  min-width: 150px;
+  text-align: center;
+}
+
+.schedule-dept-section { margin-bottom: 24px; }
+.schedule-dept-section h3 {
+  font-size: 14px; font-weight: 700;
+  color: var(--gray-700);
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+.schedule-grid { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
 .schedule-table {
-  width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
-  min-width: 600px;
+  font-size: 12px;
+  min-width: 100%;
 }
 
 .schedule-table th {
-  padding: 6px 4px;
-  border-bottom: 2px solid var(--gray-200);
-  font-size: 11px;
+  padding: 6px 2px;
+  border-bottom: 2px solid var(--gray-100);
+  font-size: 10px;
   text-align: center;
   color: var(--gray-400);
+  font-weight: 600;
+  white-space: nowrap;
   position: sticky;
   top: 0;
   background: #fff;
@@ -561,144 +929,166 @@ body {
 
 .schedule-table th.name-col {
   text-align: left;
-  min-width: 140px;
+  min-width: 120px;
+  left: 0;
+  z-index: 1;
 }
 
 .schedule-table td {
-  padding: 4px;
-  border-bottom: 1px solid var(--gray-100);
+  padding: 3px 2px;
+  border-bottom: 1px solid var(--gray-50);
   text-align: center;
 }
 
 .schedule-table td.name-cell {
   text-align: left;
   font-weight: 500;
-  padding-left: 8px;
+  font-size: 12px;
+  position: sticky;
+  left: 0;
+  background: #fff;
+  z-index: 1;
+  padding-left: 4px;
+  white-space: nowrap;
 }
 
-.schedule-table .day-check {
-  width: 28px;
-  height: 28px;
+.day-check {
+  width: 24px; height: 24px;
   cursor: pointer;
   accent-color: var(--blue);
 }
 
-.schedule-dept-section { margin-bottom: 20px; }
-
-.schedule-dept-section h3 {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 8px;
-  color: var(--gray-600);
-}
-
-.schedule-month-nav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.schedule-month-nav button {
-  background: var(--gray-100);
-  border: 1px solid var(--gray-200);
-  border-radius: 6px;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 14px;
-}
-.schedule-month-nav button:hover { background: var(--gray-200); }
-
-.schedule-month-nav .month-label {
-  font-weight: 700;
-  font-size: 15px;
-  min-width: 160px;
-  text-align: center;
-}
-
-/* ── Mobile Log Toggle ───────────────────────────────────────── */
-.log-toggle-btn {
+/* ── Mobile Bottom Nav ───────────────────────────────────────── */
+.bottom-nav {
   display: none;
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid var(--gray-200);
+  padding: 6px 0 calc(6px + var(--safe-bottom));
   z-index: 150;
-  background: var(--gray-900);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 52px;
-  height: 52px;
-  font-size: 20px;
-  cursor: pointer;
-  box-shadow: var(--shadow-lg);
-  align-items: center;
-  justify-content: center;
+  justify-content: space-around;
 }
 
-.log-badge {
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--gray-400);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .15s;
+  min-height: 48px;
+  min-width: 64px;
+  justify-content: center;
+  touch-action: manipulation;
+}
+.bottom-nav-item.active { color: var(--blue); }
+.bottom-nav-item .nav-icon { font-size: 22px; line-height: 1; }
+.bottom-nav-item .nav-badge {
   position: absolute;
-  top: -2px; right: -2px;
+  top: 2px; right: 8px;
   background: var(--red);
   color: #fff;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
-  width: 18px; height: 18px;
+  width: 16px; height: 16px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
 }
 
-/* ── Legend ───────────────────────────────────────────────────── */
-.legend {
+/* ── Mobile Log Overlay ──────────────────────────────────────── */
+.log-mobile-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 180;
+  display: none;
+}
+
+.log-mobile-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.3);
+  opacity: 0;
+  transition: opacity .25s;
+}
+.log-mobile-overlay.open .log-mobile-backdrop { opacity: 1; }
+
+.log-mobile-panel {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 100%;
+  max-width: 360px;
+  background: #fff;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 8px 20px 12px;
-  font-size: 12px;
-  color: var(--gray-500);
-  justify-content: center;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .3s var(--ease-out);
+  padding-top: var(--safe-top);
+  padding-bottom: calc(var(--safe-bottom) + 70px);
 }
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.legend-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-}
+.log-mobile-overlay.open .log-mobile-panel { transform: translateX(0); }
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .main-layout { flex-direction: column; }
+  .log-panel { display: none; }
+  .bottom-nav { display: flex; }
+  .log-mobile-overlay { display: block; }
 
-  .log-panel {
-    position: fixed;
-    top: 0; right: 0; bottom: 0;
-    width: 320px;
-    height: 100vh;
-    transform: translateX(100%);
-    transition: transform .25s;
-    z-index: 180;
-    box-shadow: var(--shadow-lg);
+  .admin-overlay { padding: 0; align-items: flex-end; }
+  .admin-panel {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-height: 95vh;
+    max-height: 95dvh;
   }
-  .log-panel.open { transform: translateX(0); }
-
-  .log-toggle-btn { display: flex; }
-
-  .departments-area { padding: 12px; }
-
-  .overall-banner { font-size: 13px; gap: 12px; padding: 12px 16px; }
 }
 
 @media (max-width: 480px) {
-  .top-bar { padding: 10px 14px; }
   .top-bar h1 { font-size: 15px; }
-  .dept-header { padding: 10px 14px; }
-  .dept-body { padding: 10px 14px 14px; }
-  .staff-chip { padding: 7px 10px; font-size: 12px; min-height: 38px; }
-  .modal-card { padding: 20px 16px 28px; }
+  .dept-header { padding: 12px 14px; }
+  .dept-body { padding: 10px 12px 14px; }
+  .staff-chip { padding: 8px 11px; font-size: 12px; min-height: 44px; }
+  .overall-banner { padding: 10px 14px; gap: 8px; }
+  .legend { gap: 4px; padding: 8px 12px; }
+  .legend-item { font-size: 10px; padding: 3px 8px; }
+}
+
+/* ── Toast Notification ──────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: calc(80px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--gray-900);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  opacity: 0;
+  pointer-events: none;
+  transition: all .3s var(--ease-spring);
+  z-index: 300;
+  white-space: nowrap;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (min-width: 901px) {
+  .toast { bottom: 32px; }
 }
 </style>
 </head>
@@ -708,122 +1098,161 @@ body {
 <header class="top-bar">
   <h1>Pharmacy Ratio Tracker</h1>
   <div class="top-bar-right">
-    <select class="role-select" id="roleSelect" title="Select your identity">
-      <option value="">-- Select Your Name --</option>
+    <select class="role-select" id="roleSelect" aria-label="Select your identity">
+      <option value="">-- Your Name --</option>
     </select>
-    <button class="btn-admin" id="adminBtn" title="Manage staff &amp; schedules">Admin</button>
+    <button class="btn-icon" id="adminBtn" aria-label="Administration">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
   </div>
 </header>
 
 <!-- ── Overall Banner ──────────────────────────────────────── -->
 <div class="overall-banner status-green" id="overallBanner">
-  <span>Overall Pharmacy Ratio</span>
-  <span class="ratio-pill" id="overallRatio">—</span>
-  <span id="overallLabel">Loading…</span>
+  <div class="status-icon" id="overallIcon">&#10003;</div>
+  <div class="ratio-text">
+    <span class="ratio-numbers" id="overallRatio">—</span>
+    <span class="ratio-label" id="overallLabel">Loading…</span>
+  </div>
 </div>
 
 <!-- ── Legend ───────────────────────────────────────────────── -->
 <div class="legend">
-  <span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> Working</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> At Lunch</span>
-  <span class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span> In Meeting</span>
-  <span class="legend-item"><span class="legend-dot" style="background:var(--gray-300)"></span> Out / Called Off</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#8b5cf6"></span> Non-Tech Function</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#16a34a"></span> Working</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#d97706"></span> Lunch</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#2563eb"></span> Meeting</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#d1d5db"></span> Out</span>
+  <span class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span> Non-Tech</span>
 </div>
 
 <!-- ── Main Layout ─────────────────────────────────────────── -->
 <div class="main-layout">
-  <div class="departments-area" id="departmentsArea">
-    <!-- rendered by JS -->
-  </div>
+  <div class="departments-area" id="departmentsArea"></div>
 
   <aside class="log-panel" id="logPanel">
     <div class="log-panel-header">
       Activity Log
-      <button class="btn-clear-log" id="clearLogBtn">Clear</button>
+      <button class="btn-clear" id="clearLogBtn">Clear</button>
     </div>
-    <div class="log-entries" id="logEntries">
-      <!-- rendered by JS -->
-    </div>
+    <div class="log-entries" id="logEntries"></div>
   </aside>
 </div>
 
-<!-- Mobile log toggle -->
-<button class="log-toggle-btn" id="logToggleBtn" title="Activity Log">
-  <span>&#128221;</span>
-  <span class="log-badge" id="logBadge" style="display:none">0</span>
-</button>
+<!-- ── Mobile Bottom Nav ───────────────────────────────────── -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bottom-nav-item active" data-view="board">
+    <span class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+    </span>
+    Board
+  </button>
+  <button class="bottom-nav-item" data-view="log" style="position:relative">
+    <span class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+    </span>
+    Log
+    <span class="nav-badge" id="logBadge" style="display:none">0</span>
+  </button>
+  <button class="bottom-nav-item" data-view="admin">
+    <span class="nav-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+    </span>
+    Admin
+  </button>
+</nav>
+
+<!-- ── Mobile Log Overlay ──────────────────────────────────── -->
+<div class="log-mobile-overlay" id="logMobileOverlay">
+  <div class="log-mobile-backdrop" id="logMobileBackdrop"></div>
+  <div class="log-mobile-panel">
+    <div class="log-panel-header">
+      Activity Log
+      <button class="btn-clear" id="clearLogBtnMobile">Clear</button>
+    </div>
+    <div class="log-entries" id="logEntriesMobile"></div>
+  </div>
+</div>
 
 <!-- ── Status Change Modal ─────────────────────────────────── -->
 <div class="modal-overlay" id="statusModal">
   <div class="modal-card">
-    <div class="modal-name" id="modalName"></div>
-    <div class="modal-dept" id="modalDept"></div>
+    <div class="modal-handle-area"><div class="modal-handle"></div></div>
+    <div class="modal-header">
+      <div class="modal-name" id="modalName"></div>
+      <div class="modal-dept" id="modalDept"></div>
+    </div>
     <div class="modal-options" id="modalOptions"></div>
-    <button class="modal-close" id="modalClose">Cancel</button>
+    <button class="modal-cancel" id="modalClose">Cancel</button>
   </div>
 </div>
 
 <!-- ── Admin Panel ─────────────────────────────────────────── -->
 <div class="admin-overlay" id="adminOverlay">
   <div class="admin-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div class="admin-panel-header">
       <h2>Administration</h2>
-      <button class="btn-secondary" id="adminClose">Close</button>
+      <button class="btn-close" id="adminClose" aria-label="Close">&times;</button>
     </div>
     <div class="admin-tabs">
       <button class="admin-tab active" data-tab="staff">Staff</button>
-      <button class="admin-tab" data-tab="schedule">Monthly Schedule</button>
+      <button class="admin-tab" data-tab="schedule">Schedule</button>
     </div>
-
-    <!-- Staff Management Tab -->
-    <div class="admin-section active" id="adminStaff">
-      <table class="staff-table" id="staffTable">
-        <thead>
-          <tr><th>Name</th><th>Role</th><th>Department</th><th></th></tr>
-        </thead>
-        <tbody id="staffTableBody"></tbody>
-      </table>
-      <div class="add-staff-form" id="addStaffForm">
-        <input type="text" id="newName" placeholder="Full name">
-        <select id="newRole">
-          <option value="pharmacist">Pharmacist</option>
-          <option value="tech">Pharmacy Tech</option>
-        </select>
-        <select id="newDept">
-          <option value="home_infusion">Home Infusion</option>
-          <option value="hospice">Hospice</option>
-          <option value="specialty">Specialty Pharmacy</option>
-        </select>
-        <button class="btn-primary" id="addStaffBtn">Add Staff</button>
-      </div>
-    </div>
-
-    <!-- Schedule Tab -->
-    <div class="admin-section" id="adminSchedule">
-      <div class="schedule-controls">
-        <div class="schedule-month-nav">
-          <button id="prevMonth">&larr;</button>
-          <span class="month-label" id="scheduleMonthLabel"></span>
-          <button id="nextMonth">&rarr;</button>
+    <div class="admin-content">
+      <div class="admin-section active" id="adminStaff">
+        <table class="staff-table" id="staffTable">
+          <thead><tr><th>Name</th><th>Role</th><th>Department</th><th></th></tr></thead>
+          <tbody id="staffTableBody"></tbody>
+        </table>
+        <div class="add-staff-form">
+          <input type="text" class="form-input" id="newName" placeholder="Full name" style="flex:1;min-width:140px">
+          <select class="form-select" id="newRole">
+            <option value="pharmacist">Pharmacist</option>
+            <option value="tech">Pharmacy Tech</option>
+          </select>
+          <select class="form-select" id="newDept">
+            <option value="home_infusion">Home Infusion</option>
+            <option value="hospice">Hospice</option>
+            <option value="specialty">Specialty Pharmacy</option>
+          </select>
+          <button class="btn-primary" id="addStaffBtn">Add</button>
         </div>
-        <button class="btn-primary" id="applyScheduleBtn">Apply Today's Schedule</button>
       </div>
-      <div class="schedule-grid" id="scheduleGrid">
-        <!-- rendered by JS -->
+      <div class="admin-section" id="adminSchedule">
+        <div class="schedule-controls">
+          <div class="schedule-month-nav">
+            <button id="prevMonth">&larr;</button>
+            <span class="month-label" id="scheduleMonthLabel"></span>
+            <button id="nextMonth">&rarr;</button>
+          </div>
+          <button class="btn-primary" id="applyScheduleBtn">Apply Today</button>
+        </div>
+        <div class="schedule-grid" id="scheduleGrid"></div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- ── Toast ───────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
 <script>
-// ─── Data Model ──────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// DATA MODEL
+// ═══════════════════════════════════════════════════════════════
+
 const STATUSES = {
-  working:  { label: 'In / Working',      cssClass: 'status-working',  dot: '#16a34a', countsRPh: true,  countsTech: true  },
-  lunch:    { label: 'At Lunch',           cssClass: 'status-lunch',    dot: '#f59e0b', countsRPh: false, countsTech: false },
-  meeting:  { label: 'In a Meeting',       cssClass: 'status-meeting',  dot: '#2563eb', countsRPh: false, countsTech: false },
-  out:      { label: 'Left Early / Out',   cssClass: 'status-out',      dot: '#9ca3af', countsRPh: false, countsTech: false },
-  nontech:  { label: 'Non-Tech Function',  cssClass: 'status-nontech',  dot: '#8b5cf6', countsRPh: false, countsTech: false },
+  working: { label: 'In / Working',     shortLabel: 'Working',  cssClass: 'status-working', dot: '#16a34a', icon: '&#9679;',  countsRPh: true,  countsTech: true  },
+  lunch:   { label: 'At Lunch',         shortLabel: 'Lunch',    cssClass: 'status-lunch',   dot: '#d97706', icon: '&#9737;',  countsRPh: false, countsTech: false },
+  meeting: { label: 'In a Meeting',     shortLabel: 'Meeting',  cssClass: 'status-meeting', dot: '#2563eb', icon: '&#9881;',  countsRPh: false, countsTech: false },
+  out:     { label: 'Left Early / Out', shortLabel: 'Out',      cssClass: 'status-out',     dot: '#d1d5db', icon: '&#9675;',  countsRPh: false, countsTech: false },
+  nontech: { label: 'Non-Tech Function',shortLabel: 'Non-Tech', cssClass: 'status-nontech', dot: '#7c3aed', icon: '&#9830;',  countsRPh: false, countsTech: false },
+};
+
+const STATUS_ICONS = {
+  working: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>',
+  lunch:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 6v6l4 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+  meeting: '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>',
+  out:     '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>',
+  nontech: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
 };
 
 const DEPARTMENTS = [
@@ -832,11 +1261,9 @@ const DEPARTMENTS = [
   { id: 'specialty',     name: 'Specialty Pharmacy' },
 ];
 
-const MAX_RATIO = 3; // max techs per pharmacist
+const MAX_RATIO = 3;
 
-// Default sample staff — easy to modify
 const DEFAULT_STAFF = [
-  // Home Infusion
   { id: 's1',  name: 'Pharmacist 1',  role: 'pharmacist', dept: 'home_infusion' },
   { id: 's2',  name: 'Pharmacist 2',  role: 'pharmacist', dept: 'home_infusion' },
   { id: 's3',  name: 'Pharmacist 3',  role: 'pharmacist', dept: 'home_infusion' },
@@ -848,7 +1275,6 @@ const DEFAULT_STAFF = [
   { id: 's9',  name: 'Tech 4',        role: 'tech',       dept: 'home_infusion' },
   { id: 's10', name: 'Tech 5',        role: 'tech',       dept: 'home_infusion' },
   { id: 's11', name: 'Tech 6',        role: 'tech',       dept: 'home_infusion' },
-  // Hospice
   { id: 's12', name: 'Pharmacist 6',  role: 'pharmacist', dept: 'hospice' },
   { id: 's13', name: 'Pharmacist 7',  role: 'pharmacist', dept: 'hospice' },
   { id: 's14', name: 'Pharmacist 8',  role: 'pharmacist', dept: 'hospice' },
@@ -858,7 +1284,6 @@ const DEFAULT_STAFF = [
   { id: 's18', name: 'Tech 9',        role: 'tech',       dept: 'hospice' },
   { id: 's19', name: 'Tech 10',       role: 'tech',       dept: 'hospice' },
   { id: 's20', name: 'Tech 11',       role: 'tech',       dept: 'hospice' },
-  // Specialty
   { id: 's21', name: 'Pharmacist 10', role: 'pharmacist', dept: 'specialty' },
   { id: 's22', name: 'Pharmacist 11', role: 'pharmacist', dept: 'specialty' },
   { id: 's23', name: 'Pharmacist 12', role: 'pharmacist', dept: 'specialty' },
@@ -868,30 +1293,27 @@ const DEFAULT_STAFF = [
   { id: 's27', name: 'Tech 14',       role: 'tech',       dept: 'specialty' },
 ];
 
-// ─── State ──────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+
 let state = loadState();
 
 function defaultState() {
   const staff = JSON.parse(JSON.stringify(DEFAULT_STAFF));
   const statuses = {};
   staff.forEach(s => { statuses[s.id] = 'working'; });
-  return {
-    staff,
-    statuses,
-    log: [],
-    schedule: {},
-    nextId: 100,
-  };
+  return { staff, statuses, log: [], schedule: {}, nextId: 100 };
 }
 
 function loadState() {
   try {
     const raw = localStorage.getItem('pharmacyRatioTracker');
     if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed.staff && parsed.statuses) return parsed;
+      const p = JSON.parse(raw);
+      if (p.staff && p.statuses) return p;
     }
-  } catch(e) { /* ignore */ }
+  } catch(e) {}
   return defaultState();
 }
 
@@ -899,11 +1321,13 @@ function saveState() {
   localStorage.setItem('pharmacyRatioTracker', JSON.stringify(state));
 }
 
-// ─── Ratio Calculation ──────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// RATIO CALCULATION
+// ═══════════════════════════════════════════════════════════════
+
 function calcDeptRatio(deptId) {
   const deptStaff = state.staff.filter(s => s.dept === deptId);
-  let activeRPh = 0;
-  let activeTech = 0;
+  let activeRPh = 0, activeTech = 0;
   deptStaff.forEach(s => {
     const st = state.statuses[s.id] || 'out';
     if (s.role === 'pharmacist' && STATUSES[st].countsRPh) activeRPh++;
@@ -912,15 +1336,10 @@ function calcDeptRatio(deptId) {
   const maxTechs = activeRPh * MAX_RATIO;
   const overBy = Math.max(0, activeTech - maxTechs);
   let status = 'green';
-  if (overBy > 0) {
-    status = 'red';
-  } else if (activeRPh > 0 && activeTech >= maxTechs) {
-    status = 'yellow';
-  } else if (activeRPh === 0 && activeTech > 0) {
-    status = 'red';
-  } else if (activeRPh > 0 && activeTech === maxTechs - 1) {
-    status = 'yellow';
-  }
+  if (overBy > 0) status = 'red';
+  else if (activeRPh === 0 && activeTech > 0) status = 'red';
+  else if (activeRPh > 0 && activeTech >= maxTechs) status = 'yellow';
+  else if (activeRPh > 0 && activeTech === maxTechs - 1) status = 'yellow';
   return { activeRPh, activeTech, maxTechs, overBy, status };
 }
 
@@ -934,76 +1353,117 @@ function calcOverall() {
   const maxTechs = totalRPh * MAX_RATIO;
   const overBy = Math.max(0, totalTech - maxTechs);
   let status = 'green';
-  if (overBy > 0) {
-    status = 'red';
-  } else if (totalRPh > 0 && totalTech >= maxTechs) {
-    status = 'yellow';
-  } else if (totalRPh === 0 && totalTech > 0) {
-    status = 'red';
-  } else if (totalRPh > 0 && totalTech === maxTechs - 1) {
-    status = 'yellow';
-  }
+  if (overBy > 0) status = 'red';
+  else if (totalRPh === 0 && totalTech > 0) status = 'red';
+  else if (totalRPh > 0 && totalTech >= maxTechs) status = 'yellow';
+  else if (totalRPh > 0 && totalTech === maxTechs - 1) status = 'yellow';
   return { totalRPh, totalTech, maxTechs, overBy, status };
 }
 
-// ─── Permissions ────────────────────────────────────────────────
-function getCurrentRole() {
-  return document.getElementById('roleSelect').value;
-}
+// ═══════════════════════════════════════════════════════════════
+// PERMISSIONS
+// ═══════════════════════════════════════════════════════════════
 
 function canEditPerson(targetId) {
-  const selectedId = getCurrentRole();
-  if (!selectedId) return true; // no identity selected = full access for demo
-  const currentUser = state.staff.find(s => s.id === selectedId);
-  if (!currentUser) return true;
-  if (currentUser.role === 'pharmacist') return true; // pharmacists can edit anyone
-  return selectedId === targetId; // techs can only edit themselves
+  const selectedId = document.getElementById('roleSelect').value;
+  if (!selectedId) return true;
+  const u = state.staff.find(s => s.id === selectedId);
+  if (!u) return true;
+  if (u.role === 'pharmacist') return true;
+  return selectedId === targetId;
 }
 
-// ─── Log ────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════
+
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function relativeTime(iso) {
+  const now = Date.now();
+  const then = new Date(iso).getTime();
+  const diff = Math.max(0, now - then);
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'Just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  return days + 'd ago';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOG
+// ═══════════════════════════════════════════════════════════════
+
 let unseenLogCount = 0;
 
 function addLog(personName, dept, oldStatus, newStatus) {
-  const now = new Date();
-  const entry = {
-    time: now.toISOString(),
+  state.log.unshift({
+    time: new Date().toISOString(),
     name: personName,
     dept,
     from: oldStatus,
     to: newStatus,
-  };
-  state.log.unshift(entry);
-  if (state.log.length > 500) state.log.length = 500; // cap
+  });
+  if (state.log.length > 500) state.log.length = 500;
   saveState();
   renderLog();
 
-  // badge for mobile
-  const logPanel = document.getElementById('logPanel');
-  if (window.innerWidth <= 900 && !logPanel.classList.contains('open')) {
-    unseenLogCount++;
-    const badge = document.getElementById('logBadge');
-    badge.textContent = unseenLogCount;
-    badge.style.display = 'flex';
+  if (window.innerWidth <= 900) {
+    const overlay = document.getElementById('logMobileOverlay');
+    if (!overlay.classList.contains('open')) {
+      unseenLogCount++;
+      const badge = document.getElementById('logBadge');
+      badge.textContent = unseenLogCount;
+      badge.style.display = 'flex';
+    }
   }
 }
 
 function renderLog() {
-  const container = document.getElementById('logEntries');
-  container.innerHTML = state.log.map(e => {
-    const d = new Date(e.time);
-    const timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
-    const deptName = DEPARTMENTS.find(dep => dep.id === e.dept)?.name || e.dept;
-    return `<div class="log-entry">
-      <span class="log-time">${dateStr} ${timeStr}</span>
-      <br><span class="log-name">${esc(e.name)}</span>
-      <span class="log-dept">${esc(deptName)}</span>
-      <br>${STATUSES[e.from]?.label || e.from} &rarr; ${STATUSES[e.to]?.label || e.to}
-    </div>`;
-  }).join('');
+  const html = state.log.length === 0
+    ? '<div class="log-empty">No activity yet. Status changes will appear here.</div>'
+    : state.log.map(e => {
+      const deptName = DEPARTMENTS.find(d => d.id === e.dept)?.name || e.dept;
+      const toInfo = STATUSES[e.to] || {};
+      const fromInfo = STATUSES[e.from] || {};
+      return `<div class="log-entry">
+        <div class="log-icon to-${e.to}">${STATUS_ICONS[e.to] || ''}</div>
+        <div class="log-content">
+          <span class="log-name">${esc(e.name)}</span>
+          <span class="log-transition">${fromInfo.shortLabel || e.from} &rarr; ${toInfo.shortLabel || e.to}</span>
+          <div class="log-meta">
+            <span class="log-time">${relativeTime(e.time)}</span>
+            <span class="log-dept">&middot; ${esc(deptName)}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+  document.getElementById('logEntries').innerHTML = html;
+  document.getElementById('logEntriesMobile').innerHTML = html;
 }
 
-// ─── Render Departments ─────────────────────────────────────────
+// Refresh relative times every 30s
+setInterval(renderLog, 30000);
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+
 function render() {
   renderDepartments();
   renderOverall();
@@ -1014,40 +1474,38 @@ function render() {
 function renderDepartments() {
   const area = document.getElementById('departmentsArea');
   area.innerHTML = DEPARTMENTS.map(dept => {
-    const ratio = calcDeptRatio(dept.id);
+    const r = calcDeptRatio(dept.id);
     const pharmacists = state.staff.filter(s => s.dept === dept.id && s.role === 'pharmacist');
     const techs = state.staff.filter(s => s.dept === dept.id && s.role === 'tech');
+    const barPct = r.maxTechs > 0 ? Math.min(100, (r.activeTech / r.maxTechs) * 100) : (r.activeTech > 0 ? 100 : 0);
 
     return `<div class="dept-card">
-      <div class="dept-header status-${ratio.status}">
-        <div>
+      <div class="dept-header status-${r.status}">
+        <div class="dept-info">
           <h2>${esc(dept.name)}</h2>
+          <span class="dept-subtitle">${r.activeRPh} RPh active &middot; ${r.activeTech} of ${r.maxTechs} tech slots${r.overBy > 0 ? ' &middot; <strong>' + r.overBy + ' over</strong>' : ''}</span>
         </div>
-        <div class="dept-stats">
-          <span>RPh: ${ratio.activeRPh}</span>
-          <span>Tech: ${ratio.activeTech} / ${ratio.maxTechs} max</span>
-          <span class="dept-ratio">${ratio.activeRPh}:${ratio.activeTech}</span>
-          ${ratio.overBy > 0 ? `<span style="font-size:12px">(${ratio.overBy} over)</span>` : ''}
+        <div class="dept-ratio-block">
+          <div class="ratio-bar-wrap">
+            <div class="ratio-bar-track"><div class="ratio-bar-fill" style="width:${barPct}%"></div></div>
+            <span class="ratio-bar-label">${r.activeTech}/${r.maxTechs}</span>
+          </div>
+          <div class="ratio-badge">${r.activeRPh}:${r.activeTech}</div>
         </div>
       </div>
       <div class="dept-body">
         <div class="role-section">
           <div class="role-label">Pharmacists</div>
-          <div class="staff-grid">
-            ${pharmacists.map(s => renderChip(s)).join('')}
-          </div>
+          <div class="staff-grid">${pharmacists.map(s => renderChip(s)).join('')}</div>
         </div>
         <div class="role-section">
           <div class="role-label">Pharmacy Technicians</div>
-          <div class="staff-grid">
-            ${techs.map(s => renderChip(s)).join('')}
-          </div>
+          <div class="staff-grid">${techs.map(s => renderChip(s)).join('')}</div>
         </div>
       </div>
     </div>`;
   }).join('');
 
-  // Attach click handlers
   area.querySelectorAll('.staff-chip:not(.disabled)').forEach(chip => {
     chip.addEventListener('click', () => openStatusModal(chip.dataset.id));
   });
@@ -1057,7 +1515,7 @@ function renderChip(person) {
   const st = state.statuses[person.id] || 'out';
   const info = STATUSES[st];
   const editable = canEditPerson(person.id);
-  return `<div class="staff-chip ${info.cssClass} ${editable ? '' : 'disabled'}" data-id="${person.id}">
+  return `<div class="staff-chip ${info.cssClass} ${editable ? '' : 'disabled'}" data-id="${person.id}" role="button" tabindex="${editable ? 0 : -1}" aria-label="${person.name} - ${info.label}">
     <span class="chip-dot"></span>
     ${esc(person.name)}
   </div>`;
@@ -1066,34 +1524,43 @@ function renderChip(person) {
 function renderOverall() {
   const o = calcOverall();
   const banner = document.getElementById('overallBanner');
-  banner.className = `overall-banner status-${o.status}`;
-  document.getElementById('overallRatio').textContent = `${o.totalRPh} RPh : ${o.totalTech} Tech`;
+  banner.className = 'overall-banner status-' + o.status;
+  document.getElementById('overallRatio').textContent = o.totalRPh + ' RPh : ' + o.totalTech + ' Tech';
+
+  const iconEl = document.getElementById('overallIcon');
+  if (o.status === 'green') { iconEl.innerHTML = '&#10003;'; }
+  else if (o.status === 'yellow') { iconEl.innerHTML = '!'; }
+  else { iconEl.innerHTML = '&#10005;'; }
+
   const labels = {
     green: 'All departments within ratio',
     yellow: 'Approaching ratio limit',
-    red: `OVER RATIO — ${o.overBy} tech(s) must be reassigned`,
+    red: 'OVER RATIO \u2014 ' + o.overBy + ' tech(s) must be reassigned',
   };
   document.getElementById('overallLabel').textContent = labels[o.status];
 }
 
 function renderRoleSelect() {
   const sel = document.getElementById('roleSelect');
-  const current = sel.value;
-  const opts = ['<option value="">-- Select Your Name --</option>'];
+  const cur = sel.value;
+  let opts = '<option value="">-- Your Name --</option>';
   DEPARTMENTS.forEach(dept => {
     const people = state.staff.filter(s => s.dept === dept.id);
     if (people.length) {
-      opts.push(`<optgroup label="${esc(dept.name)}">`);
+      opts += '<optgroup label="' + esc(dept.name) + '">';
       people.forEach(p => {
-        opts.push(`<option value="${p.id}" ${p.id === current ? 'selected' : ''}>${esc(p.name)} (${p.role === 'pharmacist' ? 'RPh' : 'Tech'})</option>`);
+        opts += '<option value="' + p.id + '"' + (p.id === cur ? ' selected' : '') + '>' + esc(p.name) + ' (' + (p.role === 'pharmacist' ? 'RPh' : 'Tech') + ')</option>';
       });
-      opts.push('</optgroup>');
+      opts += '</optgroup>';
     }
   });
-  sel.innerHTML = opts.join('');
+  sel.innerHTML = opts;
 }
 
-// ─── Status Modal ───────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// STATUS MODAL
+// ═══════════════════════════════════════════════════════════════
+
 let modalTarget = null;
 
 function openStatusModal(personId) {
@@ -1101,26 +1568,28 @@ function openStatusModal(personId) {
   const person = state.staff.find(s => s.id === personId);
   if (!person) return;
   modalTarget = personId;
+
   const dept = DEPARTMENTS.find(d => d.id === person.dept);
   document.getElementById('modalName').textContent = person.name;
-  document.getElementById('modalDept').textContent = `${dept?.name || ''} — ${person.role === 'pharmacist' ? 'Pharmacist' : 'Pharmacy Tech'}`;
+  document.getElementById('modalDept').textContent = (dept?.name || '') + ' \u2014 ' + (person.role === 'pharmacist' ? 'Pharmacist' : 'Pharmacy Tech');
 
   const currentSt = state.statuses[personId] || 'out';
   const available = person.role === 'pharmacist'
     ? ['working', 'lunch', 'meeting', 'out']
     : ['working', 'lunch', 'meeting', 'out', 'nontech'];
 
-  const optsContainer = document.getElementById('modalOptions');
-  optsContainer.innerHTML = available.map(key => {
+  const container = document.getElementById('modalOptions');
+  container.innerHTML = available.map(key => {
     const info = STATUSES[key];
-    return `<div class="modal-option ${key === currentSt ? 'selected' : ''}" data-status="${key}">
-      <span class="opt-dot" style="background:${info.dot}"></span>
-      ${info.label}
-    </div>`;
+    return '<div class="modal-option ' + (key === currentSt ? 'selected' : '') + '" data-status="' + key + '" role="button" tabindex="0">' +
+      '<span class="opt-dot" style="background:' + info.dot + '"></span>' +
+      '<span class="opt-label">' + info.label + '</span>' +
+      '<span class="opt-check">&#10003;</span>' +
+      '</div>';
   }).join('');
 
-  optsContainer.querySelectorAll('.modal-option').forEach(opt => {
-    opt.addEventListener('click', () => {
+  container.querySelectorAll('.modal-option').forEach(opt => {
+    const handler = () => {
       const newSt = opt.dataset.status;
       const oldSt = state.statuses[personId];
       if (newSt !== oldSt) {
@@ -1129,9 +1598,12 @@ function openStatusModal(personId) {
         addLog(person.name, person.dept, oldSt, newSt);
         renderDepartments();
         renderOverall();
+        showToast(person.name + ' \u2192 ' + STATUSES[newSt].shortLabel);
       }
       closeStatusModal();
-    });
+    };
+    opt.addEventListener('click', handler);
+    opt.addEventListener('keydown', e => { if (e.key === 'Enter') handler(); });
   });
 
   document.getElementById('statusModal').classList.add('open');
@@ -1147,12 +1619,26 @@ document.getElementById('statusModal').addEventListener('click', e => {
   if (e.target === document.getElementById('statusModal')) closeStatusModal();
 });
 
-// ─── Admin Panel ────────────────────────────────────────────────
-document.getElementById('adminBtn').addEventListener('click', () => {
+// keyboard
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeStatusModal();
+    document.getElementById('adminOverlay').classList.remove('open');
+    closeMobileLog();
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// ADMIN PANEL
+// ═══════════════════════════════════════════════════════════════
+
+function openAdmin() {
   renderStaffTable();
   renderSchedule();
   document.getElementById('adminOverlay').classList.add('open');
-});
+}
+
+document.getElementById('adminBtn').addEventListener('click', openAdmin);
 
 document.getElementById('adminClose').addEventListener('click', () => {
   document.getElementById('adminOverlay').classList.remove('open');
@@ -1166,7 +1652,7 @@ document.getElementById('adminOverlay').addEventListener('click', e => {
   }
 });
 
-// Tabs
+// Admin tabs
 document.querySelectorAll('.admin-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -1180,133 +1666,130 @@ function renderStaffTable() {
   const tbody = document.getElementById('staffTableBody');
   tbody.innerHTML = state.staff.map(s => {
     const dept = DEPARTMENTS.find(d => d.id === s.dept);
-    return `<tr>
-      <td>${esc(s.name)}</td>
-      <td>${s.role === 'pharmacist' ? 'Pharmacist' : 'Pharmacy Tech'}</td>
-      <td>${esc(dept?.name || s.dept)}</td>
-      <td><button class="btn-remove" data-id="${s.id}">Remove</button></td>
-    </tr>`;
+    return '<tr><td>' + esc(s.name) + '</td><td>' +
+      (s.role === 'pharmacist' ? 'Pharmacist' : 'Pharmacy Tech') + '</td><td>' +
+      esc(dept?.name || s.dept) + '</td><td><button class="btn-remove" data-id="' + s.id + '">Remove</button></td></tr>';
   }).join('');
 
   tbody.querySelectorAll('.btn-remove').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.dataset.id;
       const person = state.staff.find(s => s.id === id);
-      if (person && confirm(`Remove ${person.name}?`)) {
+      if (person && confirm('Remove ' + person.name + '?')) {
         state.staff = state.staff.filter(s => s.id !== id);
         delete state.statuses[id];
         saveState();
         renderStaffTable();
+        showToast(person.name + ' removed');
       }
     });
   });
 }
 
 document.getElementById('addStaffBtn').addEventListener('click', () => {
-  const name = document.getElementById('newName').value.trim();
+  const nameEl = document.getElementById('newName');
+  const name = nameEl.value.trim();
   const role = document.getElementById('newRole').value;
   const dept = document.getElementById('newDept').value;
-  if (!name) return alert('Please enter a name.');
+  if (!name) { nameEl.focus(); return; }
   const id = 's' + (state.nextId++);
   state.staff.push({ id, name, role, dept });
   state.statuses[id] = 'out';
   saveState();
-  document.getElementById('newName').value = '';
+  nameEl.value = '';
+  nameEl.focus();
   renderStaffTable();
+  showToast(name + ' added');
 });
 
-// ─── Monthly Schedule ───────────────────────────────────────────
-let scheduleYear, scheduleMonth;
+// Enter key on name input
+document.getElementById('newName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('addStaffBtn').click();
+});
 
-function initScheduleMonth() {
+// ═══════════════════════════════════════════════════════════════
+// MONTHLY SCHEDULE
+// ═══════════════════════════════════════════════════════════════
+
+let scheduleYear, scheduleMonth;
+(function initScheduleMonth() {
   const now = new Date();
   scheduleYear = now.getFullYear();
   scheduleMonth = now.getMonth();
-}
-initScheduleMonth();
+})();
 
 document.getElementById('prevMonth').addEventListener('click', () => {
   scheduleMonth--;
   if (scheduleMonth < 0) { scheduleMonth = 11; scheduleYear--; }
   renderSchedule();
 });
+
 document.getElementById('nextMonth').addEventListener('click', () => {
   scheduleMonth++;
   if (scheduleMonth > 11) { scheduleMonth = 0; scheduleYear++; }
   renderSchedule();
 });
 
-function getScheduleKey(year, month) {
-  return `${year}-${String(month + 1).padStart(2, '0')}`;
-}
-
-function getDaysInMonth(year, month) {
-  return new Date(year, month + 1, 0).getDate();
-}
+function getScheduleKey(y, m) { return y + '-' + String(m + 1).padStart(2, '0'); }
+function getDaysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
 
 function renderSchedule() {
   const key = getScheduleKey(scheduleYear, scheduleMonth);
   const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('scheduleMonthLabel').textContent = `${monthNames[scheduleMonth]} ${scheduleYear}`;
+  document.getElementById('scheduleMonthLabel').textContent = monthNames[scheduleMonth] + ' ' + scheduleYear;
 
   const days = getDaysInMonth(scheduleYear, scheduleMonth);
   if (!state.schedule[key]) state.schedule[key] = {};
   const sched = state.schedule[key];
-
-  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayNames = ['S','M','T','W','T','F','S'];
   const grid = document.getElementById('scheduleGrid');
   let html = '';
 
   DEPARTMENTS.forEach(dept => {
     const people = state.staff.filter(s => s.dept === dept.id);
     if (!people.length) return;
-
-    html += `<div class="schedule-dept-section"><h3>${esc(dept.name)}</h3>`;
-    html += `<div style="overflow-x:auto"><table class="schedule-table"><thead><tr><th class="name-col">Name</th>`;
+    html += '<div class="schedule-dept-section"><h3>' + esc(dept.name) + '</h3>';
+    html += '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="schedule-table"><thead><tr><th class="name-col">Name</th>';
     for (let d = 1; d <= days; d++) {
       const dow = new Date(scheduleYear, scheduleMonth, d).getDay();
-      const isWeekend = dow === 0 || dow === 6;
-      html += `<th style="${isWeekend ? 'color:var(--red);' : ''}">${d}<br><span style="font-weight:400">${dayNames[dow]}</span></th>`;
+      const weekend = dow === 0 || dow === 6;
+      html += '<th style="' + (weekend ? 'color:var(--red);' : '') + '">' + d + '<br>' + dayNames[dow] + '</th>';
     }
-    html += `</tr></thead><tbody>`;
+    html += '</tr></thead><tbody>';
 
     people.forEach(p => {
       if (!sched[p.id]) sched[p.id] = {};
-      html += `<tr><td class="name-cell">${esc(p.name)}<br><span style="font-size:11px;color:var(--gray-400)">${p.role === 'pharmacist' ? 'RPh' : 'Tech'}</span></td>`;
+      html += '<tr><td class="name-cell">' + esc(p.name) + '</td>';
       for (let d = 1; d <= days; d++) {
-        const checked = sched[p.id][d] ? 'checked' : '';
-        html += `<td><input type="checkbox" class="day-check" data-person="${p.id}" data-day="${d}" ${checked}></td>`;
+        const checked = sched[p.id][d] ? ' checked' : '';
+        html += '<td><input type="checkbox" class="day-check" data-person="' + p.id + '" data-day="' + d + '"' + checked + '></td>';
       }
-      html += `</tr>`;
+      html += '</tr>';
     });
-
-    html += `</tbody></table></div></div>`;
+    html += '</tbody></table></div></div>';
   });
 
   grid.innerHTML = html;
 
-  // Bind checkbox changes
   grid.querySelectorAll('.day-check').forEach(cb => {
     cb.addEventListener('change', () => {
-      const pid = cb.dataset.person;
-      const day = parseInt(cb.dataset.day);
-      const key2 = getScheduleKey(scheduleYear, scheduleMonth);
-      if (!state.schedule[key2]) state.schedule[key2] = {};
-      if (!state.schedule[key2][pid]) state.schedule[key2][pid] = {};
-      state.schedule[key2][pid][day] = cb.checked;
+      const k = getScheduleKey(scheduleYear, scheduleMonth);
+      if (!state.schedule[k]) state.schedule[k] = {};
+      if (!state.schedule[k][cb.dataset.person]) state.schedule[k][cb.dataset.person] = {};
+      state.schedule[k][cb.dataset.person][parseInt(cb.dataset.day)] = cb.checked;
       saveState();
     });
   });
 }
 
-// Apply today's schedule
 document.getElementById('applyScheduleBtn').addEventListener('click', () => {
   const now = new Date();
   const key = getScheduleKey(now.getFullYear(), now.getMonth());
   const day = now.getDate();
   const sched = state.schedule[key];
+
   if (!sched) {
-    alert('No schedule data for this month. Please set up the schedule first.');
+    showToast('No schedule for this month');
     return;
   }
 
@@ -1323,32 +1806,45 @@ document.getElementById('applyScheduleBtn').addEventListener('click', () => {
   });
 
   saveState();
-  alert(`Schedule applied for today (${now.toLocaleDateString()}). ${applied} status(es) updated.`);
+  showToast('Schedule applied \u2014 ' + applied + ' updated');
   document.getElementById('adminOverlay').classList.remove('open');
   render();
 });
 
-// ─── Mobile Log Toggle ──────────────────────────────────────────
-document.getElementById('logToggleBtn').addEventListener('click', () => {
-  const panel = document.getElementById('logPanel');
-  panel.classList.toggle('open');
-  if (panel.classList.contains('open')) {
-    unseenLogCount = 0;
-    document.getElementById('logBadge').style.display = 'none';
-  }
+// ═══════════════════════════════════════════════════════════════
+// MOBILE BOTTOM NAV & LOG OVERLAY
+// ═══════════════════════════════════════════════════════════════
+
+function closeMobileLog() {
+  document.getElementById('logMobileOverlay').classList.remove('open');
+  unseenLogCount = 0;
+  document.getElementById('logBadge').style.display = 'none';
+}
+
+document.querySelectorAll('.bottom-nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const view = btn.dataset.view;
+    // reset active
+    document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+
+    if (view === 'log') {
+      btn.classList.add('active');
+      document.getElementById('logMobileOverlay').classList.add('open');
+      unseenLogCount = 0;
+      document.getElementById('logBadge').style.display = 'none';
+    } else if (view === 'admin') {
+      openAdmin();
+      document.querySelector('.bottom-nav-item[data-view="board"]').classList.add('active');
+    } else {
+      btn.classList.add('active');
+      closeMobileLog();
+    }
+  });
 });
 
-// Close log on outside click (mobile)
-document.addEventListener('click', e => {
-  const panel = document.getElementById('logPanel');
-  const toggle = document.getElementById('logToggleBtn');
-  if (window.innerWidth <= 900 && panel.classList.contains('open') &&
-      !panel.contains(e.target) && !toggle.contains(e.target)) {
-    panel.classList.remove('open');
-  }
-});
+document.getElementById('logMobileBackdrop').addEventListener('click', closeMobileLog);
 
-// ─── Clear Log ──────────────────────────────────────────────────
+// Clear log buttons
 document.getElementById('clearLogBtn').addEventListener('click', () => {
   if (confirm('Clear entire activity log?')) {
     state.log = [];
@@ -1356,20 +1852,31 @@ document.getElementById('clearLogBtn').addEventListener('click', () => {
     renderLog();
   }
 });
-
-// ─── Role select re-render ──────────────────────────────────────
-document.getElementById('roleSelect').addEventListener('change', () => {
-  renderDepartments();
+document.getElementById('clearLogBtnMobile').addEventListener('click', () => {
+  if (confirm('Clear entire activity log?')) {
+    state.log = [];
+    saveState();
+    renderLog();
+  }
 });
 
-// ─── Utilities ──────────────────────────────────────────────────
-function esc(str) {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
+// Re-render on role change
+document.getElementById('roleSelect').addEventListener('change', renderDepartments);
 
-// ─── Init ───────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+// KEYBOARD ACCESSIBILITY FOR CHIPS
+// ═══════════════════════════════════════════════════════════════
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.classList.contains('staff-chip') && !e.target.classList.contains('disabled')) {
+    openStatusModal(e.target.dataset.id);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+
 render();
 </script>
 </body>

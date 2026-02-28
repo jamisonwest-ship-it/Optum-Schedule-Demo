@@ -1140,6 +1140,308 @@ body {
   background: var(--white);
 }
 .optum-footer span { color: var(--optum-orange); font-weight: 700; }
+
+/* ── View Tabs ───────────────────────────────────────────────── */
+.view-tabs {
+  display: flex;
+  gap: 0;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-100);
+  padding: 0 16px;
+}
+
+.view-tab {
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--gray-300);
+  border-bottom: 2px solid transparent;
+  transition: color .15s;
+  font-family: inherit;
+  min-height: 48px;
+}
+.view-tab:hover { color: var(--gray-500); }
+.view-tab.active { color: var(--optum-orange); border-bottom-color: var(--optum-orange); }
+
+/* ── Date Navigation ─────────────────────────────────────────── */
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.date-nav button {
+  width: 36px; height: 36px;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-100);
+  background: var(--white);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+.date-nav button:hover { background: var(--gray-50); }
+
+.date-nav .date-label {
+  font-weight: 700;
+  font-size: 15px;
+  min-width: 180px;
+  text-align: center;
+  color: var(--optum-blue);
+}
+
+.date-nav .btn-today {
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-100);
+  background: var(--white);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--optum-orange);
+  transition: background .15s;
+}
+.date-nav .btn-today:hover { background: var(--optum-orange-light); }
+
+/* ── Grid Legend ──────────────────────────────────────────────── */
+.grid-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px;
+  justify-content: center;
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-100);
+}
+.grid-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--gray-500);
+  background: var(--gray-50);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--gray-100);
+}
+.grid-legend-swatch {
+  width: 14px; height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ── Day View Grid ───────────────────────────────────────────── */
+.day-grid-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 0 12px;
+}
+
+.day-grid {
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 100%;
+}
+
+.day-grid th {
+  padding: 4px 0;
+  font-size: 10px;
+  text-align: center;
+  font-weight: 600;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-width: 38px;
+  border-bottom: 2px solid var(--gray-100);
+}
+
+.day-grid th.name-col {
+  text-align: left;
+  min-width: 160px;
+  left: 0;
+  z-index: 3;
+  background: var(--white);
+  padding-left: 12px;
+  font-size: 11px;
+  color: var(--gray-400);
+}
+
+.day-grid th.slot-header {
+  color: #fff;
+  font-weight: 700;
+  border-left: 1px solid rgba(255,255,255,.3);
+}
+.day-grid th.slot-green  { background: var(--green); }
+.day-grid th.slot-yellow { background: var(--yellow); }
+.day-grid th.slot-red    { background: var(--red); }
+.day-grid th.slot-none   { background: var(--gray-200); color: var(--gray-600); }
+
+.day-grid td {
+  padding: 2px 1px;
+  text-align: center;
+  border-bottom: 1px solid var(--gray-50);
+  height: 30px;
+}
+
+.day-grid td.name-cell {
+  text-align: left;
+  font-weight: 500;
+  font-size: 12px;
+  position: sticky;
+  left: 0;
+  background: var(--white);
+  z-index: 1;
+  padding-left: 12px;
+  white-space: nowrap;
+  cursor: pointer;
+  color: var(--optum-blue);
+  transition: background .1s;
+}
+.day-grid td.name-cell:hover { background: var(--optum-blue-light); }
+
+.day-grid .dept-divider td {
+  background: var(--gray-50);
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gray-400);
+  text-align: left;
+  border-bottom: 1px solid var(--gray-100);
+}
+.day-grid .dept-divider td.name-cell { z-index: 1; }
+
+.day-grid .role-divider td {
+  padding: 3px 12px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--gray-300);
+  text-align: left;
+  background: var(--white);
+}
+
+.shift-cell {
+  width: 36px;
+  height: 26px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.shift-cell.on { background: var(--optum-blue-light); border: 1px solid rgba(0,38,119,.15); }
+.shift-cell.off { background: transparent; }
+
+/* ── Week / Month Grid ───────────────────────────────────────── */
+.period-grid-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 0 12px;
+}
+
+.period-grid {
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 100%;
+}
+
+.period-grid th {
+  padding: 6px 4px;
+  font-size: 10px;
+  text-align: center;
+  font-weight: 600;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--gray-100);
+  color: var(--gray-400);
+  min-width: 50px;
+  background: var(--white);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.period-grid th.name-col {
+  text-align: left;
+  min-width: 160px;
+  left: 0;
+  z-index: 3;
+  background: var(--white);
+  padding-left: 12px;
+}
+
+.period-grid td {
+  padding: 3px 2px;
+  text-align: center;
+  border-bottom: 1px solid var(--gray-50);
+}
+
+.period-grid td.name-cell {
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  position: sticky;
+  left: 0;
+  background: var(--white);
+  z-index: 1;
+  padding-left: 12px;
+  white-space: nowrap;
+  color: var(--gray-600);
+}
+
+.period-grid .dept-divider td {
+  background: var(--gray-50);
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gray-400);
+  text-align: left;
+}
+
+.day-status-cell {
+  width: 40px;
+  height: 28px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.day-status-cell.st-green  { background: var(--green-bg); border: 1px solid var(--green-border); }
+.day-status-cell.st-yellow { background: var(--yellow-bg); border: 1px solid var(--yellow-border); }
+.day-status-cell.st-red    { background: var(--red-bg); border: 1px solid var(--red-border); }
+.day-status-cell.st-none   { background: var(--gray-50); border: 1px solid var(--gray-100); }
+
+/* ── Shift Select (Admin schedule) ───────────────────────────── */
+.shift-select {
+  width: 38px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid var(--gray-100);
+  font-size: 11px;
+  font-weight: 700;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+  padding: 0 2px;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.shift-select.shift-early    { background: #e0f0fe; color: var(--optum-blue); border-color: #93c5fd; }
+.shift-select.shift-standard { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
+.shift-select.shift-late     { background: var(--purple-bg); color: var(--purple); border-color: var(--purple-border); }
+.shift-select.shift-off      { background: var(--gray-50); color: var(--gray-300); border-color: var(--gray-100); }
 </style>
 </head>
 <body>
@@ -1170,18 +1472,34 @@ body {
   </div>
 </div>
 
-<!-- ── Legend ───────────────────────────────────────────────── -->
-<div class="legend">
-  <span class="legend-item"><span class="legend-dot" style="background:#118C4F"></span> Working</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#c77700"></span> Lunch</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#002677"></span> Meeting</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#B3B3B3"></span> Out</span>
-  <span class="legend-item"><span class="legend-dot" style="background:#6b21a8"></span> Non-Tech</span>
+<!-- ── View Tabs ──────────────────────────────────────────── -->
+<div class="view-tabs" id="viewTabs">
+  <button class="view-tab active" data-view="day">Day</button>
+  <button class="view-tab" data-view="week">Week</button>
+  <button class="view-tab" data-view="month">Month</button>
+</div>
+
+<!-- ── Date Nav ──────────────────────────────────────────── -->
+<div class="date-nav" id="dateNav">
+  <button id="datePrev">&larr;</button>
+  <span class="date-label" id="dateLabel"></span>
+  <button id="dateNext">&rarr;</button>
+  <button class="btn-today" id="dateToday">Today</button>
+</div>
+
+<!-- ── Grid Legend ────────────────────────────────────────── -->
+<div class="grid-legend">
+  <span class="grid-legend-item"><span class="grid-legend-swatch" style="background:var(--green-bg);border:1px solid var(--green-border)"></span> Within ratio</span>
+  <span class="grid-legend-item"><span class="grid-legend-swatch" style="background:var(--yellow-bg);border:1px solid var(--yellow-border)"></span> At limit</span>
+  <span class="grid-legend-item"><span class="grid-legend-swatch" style="background:var(--red-bg);border:1px solid var(--red-border)"></span> Over ratio</span>
+  <span class="grid-legend-item"><span class="grid-legend-swatch" style="background:var(--optum-blue-light);border:1px solid rgba(0,38,119,.15)"></span> On shift</span>
 </div>
 
 <!-- ── Main Layout ─────────────────────────────────────────── -->
 <div class="main-layout">
-  <div class="departments-area" id="departmentsArea"></div>
+  <div class="departments-area" id="departmentsArea">
+    <div id="gridContent"></div>
+  </div>
 
   <aside class="log-panel" id="logPanel">
     <div class="log-panel-header">
@@ -1403,6 +1721,14 @@ const DEFAULT_STAFF = [
 
 let state = loadState();
 
+// ═══════════════════════════════════════════════════════════════
+// VIEW STATE
+// ═══════════════════════════════════════════════════════════════
+
+let currentView = 'day'; // 'day' | 'week' | 'month'
+let viewDate = new Date();
+viewDate.setHours(0, 0, 0, 0);
+
 function defaultState() {
   const staff = JSON.parse(JSON.stringify(DEFAULT_STAFF));
   const statuses = {};
@@ -1598,10 +1924,226 @@ setInterval(renderLog, 30000);
 // ═══════════════════════════════════════════════════════════════
 
 function render() {
-  renderDepartments();
+  renderGrid();
   renderOverall();
   renderRoleSelect();
   renderLog();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SCHEDULE GRID VIEWS
+// ═══════════════════════════════════════════════════════════════
+
+function formatSlotHour(h) {
+  const hour = Math.floor(h);
+  const min = h % 1 === 0.5 ? '30' : '00';
+  const ampm = hour >= 12 ? 'p' : 'a';
+  const h12 = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+  return h12 + ':' + min + ampm;
+}
+
+function dateKey(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+}
+
+function ensureMonthSchedule(d) {
+  const key = dateKey(d);
+  if (!state.schedule[key]) state.schedule[key] = {};
+  const sched = state.schedule[key];
+  const year = d.getFullYear();
+  const month = d.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  let changed = false;
+  state.staff.forEach(p => {
+    if (!sched[p.id]) sched[p.id] = {};
+    for (let day = 1; day <= daysInMonth; day++) {
+      if (sched[p.id][day] === undefined) {
+        const dow = new Date(year, month, day).getDay();
+        sched[p.id][day] = (dow === 0 || dow === 6) ? 'off' : (p.defaultShift || 'standard');
+        changed = true;
+      }
+    }
+  });
+  if (changed) saveState();
+  return sched;
+}
+
+function getPersonShift(personId, date) {
+  const key = dateKey(date);
+  const sched = state.schedule[key];
+  if (!sched || !sched[personId]) return 'off';
+  return sched[personId][date.getDate()] || 'off';
+}
+
+function isPersonOnShiftAtSlot(personId, date, slotHour) {
+  const shift = getPersonShift(personId, date);
+  const tmpl = SHIFT_TEMPLATES[shift];
+  if (!tmpl || tmpl.start === null) return false;
+  return slotHour >= tmpl.start && slotHour < tmpl.end;
+}
+
+function calcSlotRatio(deptId, date, slotHour) {
+  const deptStaff = state.staff.filter(s => s.dept === deptId);
+  let rph = 0, tech = 0;
+  deptStaff.forEach(s => {
+    if (isPersonOnShiftAtSlot(s.id, date, slotHour)) {
+      if (s.role === 'pharmacist') rph++;
+      else tech++;
+    }
+  });
+  if (rph === 0 && tech === 0) return 'none';
+  if (rph === 0 && tech > 0) return 'red';
+  if (tech > rph * MAX_RATIO) return 'red';
+  if (tech === rph * MAX_RATIO) return 'yellow';
+  if (tech >= rph * MAX_RATIO - 1) return 'yellow';
+  return 'green';
+}
+
+function getWorstDayStatus(deptId, date) {
+  let worst = 'none';
+  const rank = { none: 0, green: 1, yellow: 2, red: 3 };
+  for (const slot of TIME_SLOTS) {
+    const st = calcSlotRatio(deptId, date, slot);
+    if (rank[st] > rank[worst]) worst = st;
+    if (worst === 'red') break;
+  }
+  return worst;
+}
+
+function getMonday(d) {
+  const date = new Date(d);
+  const day = date.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  date.setDate(date.getDate() + diff);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function renderDayView() {
+  const area = document.getElementById('gridContent');
+  ensureMonthSchedule(viewDate);
+  let html = '<div class="day-grid-wrap"><table class="day-grid"><thead><tr><th class="name-col">Staff</th>';
+
+  // Time slot headers colored by overall ratio across all depts
+  TIME_SLOTS.forEach(slot => {
+    // For the header color, use worst ratio across all departments at this slot
+    let worst = 'none';
+    const rank = { none: 0, green: 1, yellow: 2, red: 3 };
+    DEPARTMENTS.forEach(dept => {
+      const st = calcSlotRatio(dept.id, viewDate, slot);
+      if (rank[st] > rank[worst]) worst = st;
+    });
+    html += '<th class="slot-header slot-' + worst + '">' + formatSlotHour(slot) + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  DEPARTMENTS.forEach(dept => {
+    const pharmacists = state.staff.filter(s => s.dept === dept.id && s.role === 'pharmacist');
+    const techs = state.staff.filter(s => s.dept === dept.id && s.role === 'tech');
+
+    // Department divider
+    html += '<tr class="dept-divider"><td class="name-cell" colspan="' + (TIME_SLOTS.length + 1) + '">' + esc(dept.name) + '</td></tr>';
+
+    // Pharmacists sub-header
+    if (pharmacists.length) {
+      html += '<tr class="role-divider"><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacists</td></tr>';
+      pharmacists.forEach(p => {
+        html += '<tr><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        TIME_SLOTS.forEach(slot => {
+          const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
+          html += '<td><span class="shift-cell ' + (on ? 'on' : 'off') + '"></span></td>';
+        });
+        html += '</tr>';
+      });
+    }
+
+    // Techs sub-header
+    if (techs.length) {
+      html += '<tr class="role-divider"><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacy Technicians</td></tr>';
+      techs.forEach(p => {
+        html += '<tr><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        TIME_SLOTS.forEach(slot => {
+          const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
+          html += '<td><span class="shift-cell ' + (on ? 'on' : 'off') + '"></span></td>';
+        });
+        html += '</tr>';
+      });
+    }
+  });
+
+  html += '</tbody></table></div>';
+  area.innerHTML = html;
+
+  // Click on name cell → open status modal
+  area.querySelectorAll('td.name-cell[data-person]').forEach(cell => {
+    cell.addEventListener('click', () => openStatusModal(cell.dataset.person));
+  });
+}
+
+function renderWeekView() {
+  const area = document.getElementById('gridContent');
+  const mon = getMonday(new Date(viewDate));
+  const days = [];
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(mon);
+    d.setDate(d.getDate() + i);
+    days.push(d);
+    ensureMonthSchedule(d);
+  }
+
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+  let html = '<div class="period-grid-wrap"><table class="period-grid"><thead><tr><th class="name-col">Department</th>';
+  days.forEach((d, i) => {
+    html += '<th>' + dayNames[i] + '<br>' + (d.getMonth() + 1) + '/' + d.getDate() + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  DEPARTMENTS.forEach(dept => {
+    html += '<tr><td class="name-cell">' + esc(dept.name) + '</td>';
+    days.forEach(d => {
+      const st = getWorstDayStatus(dept.id, d);
+      html += '<td><span class="day-status-cell st-' + st + '"></span></td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  area.innerHTML = html;
+}
+
+function renderMonthView() {
+  const area = document.getElementById('gridContent');
+  const year = viewDate.getFullYear();
+  const month = viewDate.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  ensureMonthSchedule(viewDate);
+
+  // Collect weekdays only
+  const weekdays = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dt = new Date(year, month, d);
+    const dow = dt.getDay();
+    if (dow !== 0 && dow !== 6) weekdays.push(dt);
+  }
+
+  const dayAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  let html = '<div class="period-grid-wrap"><table class="period-grid"><thead><tr><th class="name-col">Department</th>';
+  weekdays.forEach(d => {
+    html += '<th>' + d.getDate() + '<br>' + dayAbbr[d.getDay()] + '</th>';
+  });
+  html += '</tr></thead><tbody>';
+
+  DEPARTMENTS.forEach(dept => {
+    html += '<tr><td class="name-cell">' + esc(dept.name) + '</td>';
+    weekdays.forEach(d => {
+      const st = getWorstDayStatus(dept.id, d);
+      html += '<td><span class="day-status-cell st-' + st + '"></span></td>';
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  area.innerHTML = html;
 }
 
 function renderDepartments() {
@@ -1995,6 +2537,61 @@ document.addEventListener('keydown', e => {
     openStatusModal(e.target.dataset.id);
   }
 });
+
+// ═══════════════════════════════════════════════════════════════
+// VIEW TAB & DATE NAV EVENTS
+// ═══════════════════════════════════════════════════════════════
+
+document.querySelectorAll('.view-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentView = tab.dataset.view;
+    renderGrid();
+  });
+});
+
+document.getElementById('datePrev').addEventListener('click', () => {
+  if (currentView === 'day') viewDate.setDate(viewDate.getDate() - 1);
+  else if (currentView === 'week') viewDate.setDate(viewDate.getDate() - 7);
+  else viewDate.setMonth(viewDate.getMonth() - 1);
+  renderGrid();
+});
+
+document.getElementById('dateNext').addEventListener('click', () => {
+  if (currentView === 'day') viewDate.setDate(viewDate.getDate() + 1);
+  else if (currentView === 'week') viewDate.setDate(viewDate.getDate() + 7);
+  else viewDate.setMonth(viewDate.getMonth() + 1);
+  renderGrid();
+});
+
+document.getElementById('dateToday').addEventListener('click', () => {
+  viewDate = new Date();
+  viewDate.setHours(0, 0, 0, 0);
+  renderGrid();
+});
+
+function renderGrid() {
+  updateDateLabel();
+  if (currentView === 'day') renderDayView();
+  else if (currentView === 'week') renderWeekView();
+  else renderMonthView();
+}
+
+function updateDateLabel() {
+  const label = document.getElementById('dateLabel');
+  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  if (currentView === 'day') {
+    label.textContent = viewDate.toLocaleDateString('en-US', opts);
+  } else if (currentView === 'week') {
+    const mon = getMonday(new Date(viewDate));
+    const fri = new Date(mon);
+    fri.setDate(fri.getDate() + 4);
+    label.textContent = mon.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' – ' + fri.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } else {
+    label.textContent = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+}
 
 // ═══════════════════════════════════════════════════════════════
 // INIT

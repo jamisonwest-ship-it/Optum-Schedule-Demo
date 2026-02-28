@@ -1232,6 +1232,78 @@ body {
 .day-status-cell.st-red    { background: var(--red-bg); border: 1px solid var(--red-border); }
 .day-status-cell.st-none   { background: var(--gray-50); border: 1px solid var(--gray-100); }
 
+/* ── Clickable Shift Cells (Day/Week/Month toggle) ──────────── */
+td.shift-toggle-cell { cursor: pointer; }
+td.shift-toggle-cell:hover .shift-cell.on { opacity: .7; }
+td.shift-toggle-cell:hover .shift-cell.off { border: 1px dashed var(--gray-200); border-radius: 4px; }
+
+td.period-shift-cell { cursor: pointer; }
+td.period-shift-cell:hover .psc-on { opacity: .7; }
+td.period-shift-cell:hover .psc-off { border: 1px dashed var(--gray-200); border-radius: 4px; }
+
+/* Period grid: role-divider, ratio-summary, name-cell clickable */
+.period-grid .role-divider td {
+  padding: 3px 12px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--gray-300);
+  text-align: left;
+  background: var(--white);
+}
+.period-grid .ratio-summary-row td {
+  padding: 2px 1px;
+  border-bottom: 2px solid var(--gray-100);
+  height: 24px;
+}
+.period-grid td.name-cell[data-person] {
+  cursor: pointer;
+  color: var(--optum-blue);
+}
+.period-grid td.name-cell[data-person]:hover { background: var(--optum-blue-light); }
+
+/* Period shift cell (inline block for week/month) */
+.psc {
+  width: 44px;
+  height: 26px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+.psc-on { border: 1px solid rgba(0,38,119,.15); }
+.psc-on.shift-early    { background: #e0f0fe; border-color: #93c5fd; color: var(--optum-blue); }
+.psc-on.shift-standard { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+.psc-on.shift-late     { background: var(--purple-bg); border-color: var(--purple-border); color: var(--purple); }
+.psc-off { background: transparent; min-height: 26px; display: inline-block; width: 44px; border-radius: 4px; }
+
+/* Month view compact sizing */
+.period-grid-month th { min-width: 34px !important; font-size: 9px !important; padding: 4px 1px !important; }
+.period-grid-month td { padding: 1px 0 !important; }
+.period-grid-month .psc { width: 32px; height: 22px; font-size: 9px; }
+.period-grid-month .psc-off { width: 32px; min-height: 22px; }
+.period-grid-month td.name-cell { font-size: 10px !important; min-width: 130px !important; }
+.period-grid-month th.name-col { min-width: 130px !important; }
+
+/* Collapsible department arrow */
+.dept-collapse-arrow {
+  display: inline-block;
+  transition: transform .2s var(--ease-out);
+  font-size: 11px;
+  margin-right: 4px;
+}
+.dept-collapse-arrow.collapsed { transform: rotate(-90deg); }
+
+/* Dept divider clickable in all grids */
+.day-grid .dept-divider td,
+.period-grid .dept-divider td { cursor: pointer; user-select: none; }
+.day-grid .dept-divider td:hover,
+.period-grid .dept-divider td:hover { background: var(--gray-100); }
+
 /* ── Shift Select (Admin schedule) ───────────────────────────── */
 .shift-select {
   width: 38px;
@@ -2118,6 +2190,38 @@ function isPersonOnShiftAtSlot(personId, date, slotHour) {
   return slotHour >= tmpl.start && slotHour < tmpl.end;
 }
 
+// Collapsed department sections per view
+const collapsedDepts = { day: new Set(), week: new Set(), month: new Set() };
+
+function togglePersonDay(personId, date) {
+  if (!canEditPerson(personId)) return;
+  const person = state.staff.find(s => s.id === personId);
+  if (!person) return;
+  const key = dateKey(date);
+  ensureMonthSchedule(date);
+  const day = date.getDate();
+  const currentShift = state.schedule[key][personId][day];
+  if (currentShift !== 'off') {
+    state.schedule[key][personId][day] = 'off';
+  } else {
+    state.schedule[key][personId][day] = person.defaultShift || 'standard';
+  }
+  saveState();
+  renderGrid();
+  renderOverall();
+  const newShift = state.schedule[key][personId][day];
+  showToast(person.name + ' → ' + (newShift === 'off' ? 'Off' : SHIFT_TEMPLATES[newShift].label));
+}
+
+function formatDateAttr(d) {
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+
+function parseDateAttr(s) {
+  const parts = s.split('-');
+  return new Date(+parts[0], +parts[1] - 1, +parts[2]);
+}
+
 function calcSlotRatio(deptId, date, slotHour) {
   const deptStaff = state.staff.filter(s => s.dept === deptId);
   let rph = 0, tech = 0;
@@ -2187,6 +2291,7 @@ function getMonday(d) {
 function renderDayView() {
   const area = document.getElementById('gridContent');
   ensureMonthSchedule(viewDate);
+  const dateStr = formatDateAttr(viewDate);
 
   // Determine current time slot index (if viewing today)
   const now = new Date();
@@ -2212,12 +2317,14 @@ function renderDayView() {
   DEPARTMENTS.forEach(dept => {
     const pharmacists = state.staff.filter(s => s.dept === dept.id && s.role === 'pharmacist');
     const techs = state.staff.filter(s => s.dept === dept.id && s.role === 'tech');
+    const isCollapsed = collapsedDepts.day.has(dept.id);
+    const arrow = '<span class="dept-collapse-arrow' + (isCollapsed ? ' collapsed' : '') + '">▼</span>';
 
-    // Department divider
-    html += '<tr class="dept-divider"><td class="name-cell" colspan="' + (TIME_SLOTS.length + 1) + '">' + esc(dept.name) + '</td></tr>';
+    // Department divider (clickable to collapse)
+    html += '<tr class="dept-divider" data-collapse-dept="' + dept.id + '" data-collapse-view="day"><td class="name-cell" colspan="' + (TIME_SLOTS.length + 1) + '">' + arrow + esc(dept.name) + '</td></tr>';
 
     // Department ratio summary row
-    html += '<tr class="ratio-summary-row"><td class="name-cell" style="font-size:10px;font-weight:700;color:var(--gray-300)">RPh : Tech</td>';
+    html += '<tr class="ratio-summary-row"' + (isCollapsed ? ' style="display:none"' : '') + '><td class="name-cell" style="font-size:10px;font-weight:700;color:var(--gray-300)">RPh : Tech</td>';
     TIME_SLOTS.forEach((slot, idx) => {
       const deptStaff = state.staff.filter(s => s.dept === dept.id);
       let rph = 0, tech = 0;
@@ -2239,20 +2346,23 @@ function renderDayView() {
     });
     html += '</tr>';
 
+    const hideAttr = isCollapsed ? ' style="display:none"' : '';
+
     // Pharmacists sub-header
     if (pharmacists.length) {
-      html += '<tr class="role-divider"><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacists</td></tr>';
+      html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacists</td></tr>';
       pharmacists.forEach(p => {
-        html += '<tr><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
         TIME_SLOTS.forEach((slot, idx) => {
           const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
           const isCurrent = idx === currentSlotIdx;
+          const cls = 'shift-toggle-cell' + (isCurrent ? ' current-slot-cell' : '');
           if (on) {
             const shift = getPersonShift(p.id, viewDate);
             const letter = SHIFT_TEMPLATES[shift]?.short || '';
-            html += '<td' + (isCurrent ? ' class="current-slot-cell"' : '') + '><span class="shift-cell on shift-' + shift + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
+            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="shift-cell on shift-' + shift + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
           } else {
-            html += '<td' + (isCurrent ? ' class="current-slot-cell"' : '') + '><span class="shift-cell off"></span></td>';
+            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="shift-cell off"></span></td>';
           }
         });
         html += '</tr>';
@@ -2261,18 +2371,19 @@ function renderDayView() {
 
     // Techs sub-header
     if (techs.length) {
-      html += '<tr class="role-divider"><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacy Technicians</td></tr>';
+      html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacy Technicians</td></tr>';
       techs.forEach(p => {
-        html += '<tr><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
         TIME_SLOTS.forEach((slot, idx) => {
           const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
           const isCurrent = idx === currentSlotIdx;
+          const cls = 'shift-toggle-cell' + (isCurrent ? ' current-slot-cell' : '');
           if (on) {
             const shift = getPersonShift(p.id, viewDate);
             const letter = SHIFT_TEMPLATES[shift]?.short || '';
-            html += '<td' + (isCurrent ? ' class="current-slot-cell"' : '') + '><span class="shift-cell on shift-' + shift + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
+            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="shift-cell on shift-' + shift + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
           } else {
-            html += '<td' + (isCurrent ? ' class="current-slot-cell"' : '') + '><span class="shift-cell off"></span></td>';
+            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="shift-cell off"></span></td>';
           }
         });
         html += '</tr>';
@@ -2286,6 +2397,26 @@ function renderDayView() {
   // Click on name cell → open status modal
   area.querySelectorAll('td.name-cell[data-person]').forEach(cell => {
     cell.addEventListener('click', () => openStatusModal(cell.dataset.person));
+  });
+
+  // Click on shift cell → toggle person day
+  area.querySelectorAll('td.shift-toggle-cell[data-toggle-person]').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const personId = cell.dataset.togglePerson;
+      const date = parseDateAttr(cell.dataset.toggleDate);
+      togglePersonDay(personId, date);
+    });
+  });
+
+  // Click on dept divider → collapse/expand
+  area.querySelectorAll('tr[data-collapse-dept]').forEach(row => {
+    row.addEventListener('click', () => {
+      const deptId = row.dataset.collapseDept;
+      const view = row.dataset.collapseView;
+      if (collapsedDepts[view].has(deptId)) collapsedDepts[view].delete(deptId);
+      else collapsedDepts[view].add(deptId);
+      renderGrid();
+    });
   });
 }
 
@@ -2302,7 +2433,7 @@ function renderWeekView() {
   }
 
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-  let html = '<div class="period-grid-wrap"><table class="period-grid"><thead><tr><th class="name-col">Department</th>';
+  let html = '<div class="period-grid-wrap"><table class="period-grid"><thead><tr><th class="name-col">Staff</th>';
   days.forEach((d, i) => {
     const isToday = d.toDateString() === todayStr;
     html += '<th' + (isToday ? ' class="today-col"' : '') + '>' + dayNames[i] + '<br>' + (d.getMonth() + 1) + '/' + d.getDate() + '</th>';
@@ -2310,18 +2441,96 @@ function renderWeekView() {
   html += '</tr></thead><tbody>';
 
   DEPARTMENTS.forEach(dept => {
-    html += '<tr><td class="name-cell">' + esc(dept.name) + '</td>';
+    const pharmacists = state.staff.filter(s => s.dept === dept.id && s.role === 'pharmacist');
+    const techs = state.staff.filter(s => s.dept === dept.id && s.role === 'tech');
+    const isCollapsed = collapsedDepts.week.has(dept.id);
+    const arrow = '<span class="dept-collapse-arrow' + (isCollapsed ? ' collapsed' : '') + '">▼</span>';
+
+    // Department divider (clickable)
+    html += '<tr class="dept-divider" data-collapse-dept="' + dept.id + '" data-collapse-view="week"><td class="name-cell" colspan="' + (days.length + 1) + '">' + arrow + esc(dept.name) + '</td></tr>';
+
+    // Department ratio summary row
+    html += '<tr class="ratio-summary-row"' + (isCollapsed ? ' style="display:none"' : '') + '><td class="name-cell" style="font-size:10px;font-weight:700;color:var(--gray-300)">RPh : Tech</td>';
     days.forEach(d => {
       const isToday = d.toDateString() === todayStr;
       const st = getWorstDayStatus(dept.id, d);
       const ratio = getDayPeakRatio(dept.id, d);
-      html += '<td' + (isToday ? ' class="today-col"' : '') + '><span class="day-status-cell st-' + st + '">' + ratio + '</span></td>';
+      html += '<td' + (isToday ? ' class="today-col"' : '') + '><span class="ratio-slot rs-' + st + '">' + ratio + '</span></td>';
     });
     html += '</tr>';
+
+    const hideAttr = isCollapsed ? ' style="display:none"' : '';
+
+    // Pharmacists
+    if (pharmacists.length) {
+      html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (days.length + 1) + '">Pharmacists</td></tr>';
+      pharmacists.forEach(p => {
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        days.forEach(d => {
+          const isToday = d.toDateString() === todayStr;
+          const shift = getPersonShift(p.id, d);
+          const isOn = shift !== 'off';
+          const dateStr = formatDateAttr(d);
+          const todayCls = isToday ? ' today-col' : '';
+          if (isOn) {
+            const letter = SHIFT_TEMPLATES[shift]?.short || '';
+            html += '<td class="period-shift-cell' + todayCls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="psc psc-on shift-' + shift + '">' + letter + '</span></td>';
+          } else {
+            html += '<td class="period-shift-cell' + todayCls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="psc psc-off"></span></td>';
+          }
+        });
+        html += '</tr>';
+      });
+    }
+
+    // Technicians
+    if (techs.length) {
+      html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (days.length + 1) + '">Pharmacy Technicians</td></tr>';
+      techs.forEach(p => {
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        days.forEach(d => {
+          const isToday = d.toDateString() === todayStr;
+          const shift = getPersonShift(p.id, d);
+          const isOn = shift !== 'off';
+          const dateStr = formatDateAttr(d);
+          const todayCls = isToday ? ' today-col' : '';
+          if (isOn) {
+            const letter = SHIFT_TEMPLATES[shift]?.short || '';
+            html += '<td class="period-shift-cell' + todayCls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="psc psc-on shift-' + shift + '">' + letter + '</span></td>';
+          } else {
+            html += '<td class="period-shift-cell' + todayCls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="psc psc-off"></span></td>';
+          }
+        });
+        html += '</tr>';
+      });
+    }
   });
 
   html += '</tbody></table></div>';
   area.innerHTML = html;
+
+  // Click on name cell → open status modal
+  area.querySelectorAll('td.name-cell[data-person]').forEach(cell => {
+    cell.addEventListener('click', () => openStatusModal(cell.dataset.person));
+  });
+
+  // Click on shift cell → toggle
+  area.querySelectorAll('td.period-shift-cell[data-toggle-person]').forEach(cell => {
+    cell.addEventListener('click', () => {
+      togglePersonDay(cell.dataset.togglePerson, parseDateAttr(cell.dataset.toggleDate));
+    });
+  });
+
+  // Collapse/expand departments
+  area.querySelectorAll('tr[data-collapse-dept]').forEach(row => {
+    row.addEventListener('click', () => {
+      const deptId = row.dataset.collapseDept;
+      const view = row.dataset.collapseView;
+      if (collapsedDepts[view].has(deptId)) collapsedDepts[view].delete(deptId);
+      else collapsedDepts[view].add(deptId);
+      renderGrid();
+    });
+  });
 }
 
 function renderMonthView() {
@@ -2341,7 +2550,7 @@ function renderMonthView() {
   }
 
   const dayAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  let html = '<div class="period-grid-wrap"><table class="period-grid"><thead><tr><th class="name-col">Department</th>';
+  let html = '<div class="period-grid-wrap"><table class="period-grid period-grid-month"><thead><tr><th class="name-col">Staff</th>';
   weekdays.forEach(d => {
     const isToday = d.toDateString() === todayStr;
     html += '<th' + (isToday ? ' class="today-col"' : '') + '>' + d.getDate() + '<br>' + dayAbbr[d.getDay()] + '</th>';
@@ -2349,18 +2558,96 @@ function renderMonthView() {
   html += '</tr></thead><tbody>';
 
   DEPARTMENTS.forEach(dept => {
-    html += '<tr><td class="name-cell">' + esc(dept.name) + '</td>';
+    const pharmacists = state.staff.filter(s => s.dept === dept.id && s.role === 'pharmacist');
+    const techs = state.staff.filter(s => s.dept === dept.id && s.role === 'tech');
+    const isCollapsed = collapsedDepts.month.has(dept.id);
+    const arrow = '<span class="dept-collapse-arrow' + (isCollapsed ? ' collapsed' : '') + '">▼</span>';
+
+    // Department divider (clickable)
+    html += '<tr class="dept-divider" data-collapse-dept="' + dept.id + '" data-collapse-view="month"><td class="name-cell" colspan="' + (weekdays.length + 1) + '">' + arrow + esc(dept.name) + '</td></tr>';
+
+    // Department ratio summary row
+    html += '<tr class="ratio-summary-row"' + (isCollapsed ? ' style="display:none"' : '') + '><td class="name-cell" style="font-size:9px;font-weight:700;color:var(--gray-300)">RPh:Tech</td>';
     weekdays.forEach(d => {
       const isToday = d.toDateString() === todayStr;
       const st = getWorstDayStatus(dept.id, d);
       const ratio = getDayPeakRatio(dept.id, d);
-      html += '<td' + (isToday ? ' class="today-col"' : '') + '><span class="day-status-cell st-' + st + '">' + ratio + '</span></td>';
+      html += '<td' + (isToday ? ' class="today-col"' : '') + '><span class="ratio-slot rs-' + st + '" style="width:30px;height:18px;font-size:8px">' + ratio + '</span></td>';
     });
     html += '</tr>';
+
+    const hideAttr = isCollapsed ? ' style="display:none"' : '';
+
+    // Pharmacists
+    if (pharmacists.length) {
+      html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (weekdays.length + 1) + '">Pharmacists</td></tr>';
+      pharmacists.forEach(p => {
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        weekdays.forEach(d => {
+          const isToday = d.toDateString() === todayStr;
+          const shift = getPersonShift(p.id, d);
+          const isOn = shift !== 'off';
+          const dateStr = formatDateAttr(d);
+          const todayCls = isToday ? ' today-col' : '';
+          if (isOn) {
+            const letter = SHIFT_TEMPLATES[shift]?.short || '';
+            html += '<td class="period-shift-cell' + todayCls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="psc psc-on shift-' + shift + '">' + letter + '</span></td>';
+          } else {
+            html += '<td class="period-shift-cell' + todayCls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="psc psc-off"></span></td>';
+          }
+        });
+        html += '</tr>';
+      });
+    }
+
+    // Technicians
+    if (techs.length) {
+      html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (weekdays.length + 1) + '">Pharmacy Technicians</td></tr>';
+      techs.forEach(p => {
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        weekdays.forEach(d => {
+          const isToday = d.toDateString() === todayStr;
+          const shift = getPersonShift(p.id, d);
+          const isOn = shift !== 'off';
+          const dateStr = formatDateAttr(d);
+          const todayCls = isToday ? ' today-col' : '';
+          if (isOn) {
+            const letter = SHIFT_TEMPLATES[shift]?.short || '';
+            html += '<td class="period-shift-cell' + todayCls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="psc psc-on shift-' + shift + '">' + letter + '</span></td>';
+          } else {
+            html += '<td class="period-shift-cell' + todayCls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="psc psc-off"></span></td>';
+          }
+        });
+        html += '</tr>';
+      });
+    }
   });
 
   html += '</tbody></table></div>';
   area.innerHTML = html;
+
+  // Click on name cell → open status modal
+  area.querySelectorAll('td.name-cell[data-person]').forEach(cell => {
+    cell.addEventListener('click', () => openStatusModal(cell.dataset.person));
+  });
+
+  // Click on shift cell → toggle
+  area.querySelectorAll('td.period-shift-cell[data-toggle-person]').forEach(cell => {
+    cell.addEventListener('click', () => {
+      togglePersonDay(cell.dataset.togglePerson, parseDateAttr(cell.dataset.toggleDate));
+    });
+  });
+
+  // Collapse/expand departments
+  area.querySelectorAll('tr[data-collapse-dept]').forEach(row => {
+    row.addEventListener('click', () => {
+      const deptId = row.dataset.collapseDept;
+      const view = row.dataset.collapseView;
+      if (collapsedDepts[view].has(deptId)) collapsedDepts[view].delete(deptId);
+      else collapsedDepts[view].add(deptId);
+      renderGrid();
+    });
+  });
 }
 
 function renderOverall() {

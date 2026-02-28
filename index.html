@@ -1317,72 +1317,84 @@ const DEPARTMENTS = [
 
 const MAX_RATIO = 3;
 
+const SHIFT_TEMPLATES = {
+  early:    { label: 'Early (7a–3p)',    short: 'E', start: 7.0,  end: 15.0 },
+  standard: { label: 'Standard (8a–5p)', short: 'S', start: 8.0,  end: 17.0 },
+  late:     { label: 'Late (10a–6p)',    short: 'L', start: 10.0, end: 18.0 },
+  off:      { label: 'Off',              short: '–', start: null, end: null },
+};
+
+// 30-minute blocks from 7:00 AM to 5:00 PM (last slot starts 4:30 PM)
+const TIME_SLOTS = [];
+for (let h = 7.0; h < 17.0; h += 0.5) TIME_SLOTS.push(h);
+// TIME_SLOTS = [7.0, 7.5, 8.0, ... 16.5] — 20 slots
+
 const DEFAULT_STAFF = [
   // ── Home Infusion: 5 Pharmacists, 15 Technicians ──
-  { id: 's1',  name: 'Sarah Chen, RPh',        role: 'pharmacist', dept: 'home_infusion' },
-  { id: 's2',  name: 'Michael Torres, RPh',     role: 'pharmacist', dept: 'home_infusion' },
-  { id: 's3',  name: 'Jennifer Patel, RPh',     role: 'pharmacist', dept: 'home_infusion' },
-  { id: 's4',  name: 'David Nakamura, RPh',     role: 'pharmacist', dept: 'home_infusion' },
-  { id: 's5',  name: 'Rachel Kim, RPh',         role: 'pharmacist', dept: 'home_infusion' },
-  { id: 's6',  name: 'Ashley Martinez, CPhT',   role: 'tech',       dept: 'home_infusion' },
-  { id: 's7',  name: 'Brandon Williams, CPhT',  role: 'tech',       dept: 'home_infusion' },
-  { id: 's8',  name: 'Christina Lee, CPhT',     role: 'tech',       dept: 'home_infusion' },
-  { id: 's9',  name: 'Derek Johnson, CPhT',     role: 'tech',       dept: 'home_infusion' },
-  { id: 's10', name: 'Emily Nguyen, CPhT',      role: 'tech',       dept: 'home_infusion' },
-  { id: 's11', name: 'Frank Garcia, CPhT',      role: 'tech',       dept: 'home_infusion' },
-  { id: 's12', name: 'Grace Thompson, CPhT',    role: 'tech',       dept: 'home_infusion' },
-  { id: 's13', name: 'Henry Okafor, CPhT',      role: 'tech',       dept: 'home_infusion' },
-  { id: 's14', name: 'Isabel Reyes, CPhT',      role: 'tech',       dept: 'home_infusion' },
-  { id: 's15', name: 'Jason Park, CPhT',        role: 'tech',       dept: 'home_infusion' },
-  { id: 's16', name: 'Karen Mitchell, CPhT',    role: 'tech',       dept: 'home_infusion' },
-  { id: 's17', name: 'Luis Fernandez, CPhT',    role: 'tech',       dept: 'home_infusion' },
-  { id: 's18', name: 'Monica Singh, CPhT',      role: 'tech',       dept: 'home_infusion' },
-  { id: 's19', name: 'Nathan Brooks, CPhT',     role: 'tech',       dept: 'home_infusion' },
-  { id: 's20', name: 'Olivia Chang, CPhT',      role: 'tech',       dept: 'home_infusion' },
+  { id: 's1',  name: 'Sarah Chen, RPh',        role: 'pharmacist', dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's2',  name: 'Michael Torres, RPh',     role: 'pharmacist', dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's3',  name: 'Jennifer Patel, RPh',     role: 'pharmacist', dept: 'home_infusion', defaultShift: 'early' },
+  { id: 's4',  name: 'David Nakamura, RPh',     role: 'pharmacist', dept: 'home_infusion', defaultShift: 'late' },
+  { id: 's5',  name: 'Rachel Kim, RPh',         role: 'pharmacist', dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's6',  name: 'Ashley Martinez, CPhT',   role: 'tech',       dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's7',  name: 'Brandon Williams, CPhT',  role: 'tech',       dept: 'home_infusion', defaultShift: 'early' },
+  { id: 's8',  name: 'Christina Lee, CPhT',     role: 'tech',       dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's9',  name: 'Derek Johnson, CPhT',     role: 'tech',       dept: 'home_infusion', defaultShift: 'late' },
+  { id: 's10', name: 'Emily Nguyen, CPhT',      role: 'tech',       dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's11', name: 'Frank Garcia, CPhT',      role: 'tech',       dept: 'home_infusion', defaultShift: 'early' },
+  { id: 's12', name: 'Grace Thompson, CPhT',    role: 'tech',       dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's13', name: 'Henry Okafor, CPhT',      role: 'tech',       dept: 'home_infusion', defaultShift: 'late' },
+  { id: 's14', name: 'Isabel Reyes, CPhT',      role: 'tech',       dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's15', name: 'Jason Park, CPhT',        role: 'tech',       dept: 'home_infusion', defaultShift: 'early' },
+  { id: 's16', name: 'Karen Mitchell, CPhT',    role: 'tech',       dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's17', name: 'Luis Fernandez, CPhT',    role: 'tech',       dept: 'home_infusion', defaultShift: 'late' },
+  { id: 's18', name: 'Monica Singh, CPhT',      role: 'tech',       dept: 'home_infusion', defaultShift: 'standard' },
+  { id: 's19', name: 'Nathan Brooks, CPhT',     role: 'tech',       dept: 'home_infusion', defaultShift: 'early' },
+  { id: 's20', name: 'Olivia Chang, CPhT',      role: 'tech',       dept: 'home_infusion', defaultShift: 'standard' },
 
   // ── Hospice: 5 Pharmacists, 15 Technicians ──
-  { id: 's21', name: 'Amanda Foster, RPh',      role: 'pharmacist', dept: 'hospice' },
-  { id: 's22', name: 'Robert Kowalski, RPh',    role: 'pharmacist', dept: 'hospice' },
-  { id: 's23', name: 'Priya Sharma, RPh',       role: 'pharmacist', dept: 'hospice' },
-  { id: 's24', name: 'James Sullivan, RPh',     role: 'pharmacist', dept: 'hospice' },
-  { id: 's25', name: 'Lisa Huang, RPh',         role: 'pharmacist', dept: 'hospice' },
-  { id: 's26', name: 'Patricia Wells, CPhT',    role: 'tech',       dept: 'hospice' },
-  { id: 's27', name: 'Carlos Rivera, CPhT',     role: 'tech',       dept: 'hospice' },
-  { id: 's28', name: 'Danielle Cooper, CPhT',   role: 'tech',       dept: 'hospice' },
-  { id: 's29', name: 'Ethan Morales, CPhT',     role: 'tech',       dept: 'hospice' },
-  { id: 's30', name: 'Fatima Al-Hassan, CPhT',  role: 'tech',       dept: 'hospice' },
-  { id: 's31', name: 'Gregory Bell, CPhT',      role: 'tech',       dept: 'hospice' },
-  { id: 's32', name: 'Hannah Price, CPhT',      role: 'tech',       dept: 'hospice' },
-  { id: 's33', name: 'Ivan Petrov, CPhT',       role: 'tech',       dept: 'hospice' },
-  { id: 's34', name: 'Julia Sanders, CPhT',     role: 'tech',       dept: 'hospice' },
-  { id: 's35', name: 'Kevin Tran, CPhT',        role: 'tech',       dept: 'hospice' },
-  { id: 's36', name: 'Laura Dixon, CPhT',       role: 'tech',       dept: 'hospice' },
-  { id: 's37', name: 'Marcus Howard, CPhT',     role: 'tech',       dept: 'hospice' },
-  { id: 's38', name: 'Nicole Watts, CPhT',      role: 'tech',       dept: 'hospice' },
-  { id: 's39', name: 'Oscar Delgado, CPhT',     role: 'tech',       dept: 'hospice' },
-  { id: 's40', name: 'Rachael Stone, CPhT',     role: 'tech',       dept: 'hospice' },
+  { id: 's21', name: 'Amanda Foster, RPh',      role: 'pharmacist', dept: 'hospice', defaultShift: 'standard' },
+  { id: 's22', name: 'Robert Kowalski, RPh',    role: 'pharmacist', dept: 'hospice', defaultShift: 'early' },
+  { id: 's23', name: 'Priya Sharma, RPh',       role: 'pharmacist', dept: 'hospice', defaultShift: 'standard' },
+  { id: 's24', name: 'James Sullivan, RPh',     role: 'pharmacist', dept: 'hospice', defaultShift: 'late' },
+  { id: 's25', name: 'Lisa Huang, RPh',         role: 'pharmacist', dept: 'hospice', defaultShift: 'standard' },
+  { id: 's26', name: 'Patricia Wells, CPhT',    role: 'tech',       dept: 'hospice', defaultShift: 'standard' },
+  { id: 's27', name: 'Carlos Rivera, CPhT',     role: 'tech',       dept: 'hospice', defaultShift: 'early' },
+  { id: 's28', name: 'Danielle Cooper, CPhT',   role: 'tech',       dept: 'hospice', defaultShift: 'standard' },
+  { id: 's29', name: 'Ethan Morales, CPhT',     role: 'tech',       dept: 'hospice', defaultShift: 'late' },
+  { id: 's30', name: 'Fatima Al-Hassan, CPhT',  role: 'tech',       dept: 'hospice', defaultShift: 'standard' },
+  { id: 's31', name: 'Gregory Bell, CPhT',      role: 'tech',       dept: 'hospice', defaultShift: 'early' },
+  { id: 's32', name: 'Hannah Price, CPhT',      role: 'tech',       dept: 'hospice', defaultShift: 'standard' },
+  { id: 's33', name: 'Ivan Petrov, CPhT',       role: 'tech',       dept: 'hospice', defaultShift: 'late' },
+  { id: 's34', name: 'Julia Sanders, CPhT',     role: 'tech',       dept: 'hospice', defaultShift: 'standard' },
+  { id: 's35', name: 'Kevin Tran, CPhT',        role: 'tech',       dept: 'hospice', defaultShift: 'early' },
+  { id: 's36', name: 'Laura Dixon, CPhT',       role: 'tech',       dept: 'hospice', defaultShift: 'standard' },
+  { id: 's37', name: 'Marcus Howard, CPhT',     role: 'tech',       dept: 'hospice', defaultShift: 'late' },
+  { id: 's38', name: 'Nicole Watts, CPhT',      role: 'tech',       dept: 'hospice', defaultShift: 'standard' },
+  { id: 's39', name: 'Oscar Delgado, CPhT',     role: 'tech',       dept: 'hospice', defaultShift: 'early' },
+  { id: 's40', name: 'Rachael Stone, CPhT',     role: 'tech',       dept: 'hospice', defaultShift: 'standard' },
 
   // ── Specialty Pharmacy: 5 Pharmacists, 15 Technicians ──
-  { id: 's41', name: 'Catherine Wolfe, RPh',    role: 'pharmacist', dept: 'specialty' },
-  { id: 's42', name: 'Andrew Jacobs, RPh',      role: 'pharmacist', dept: 'specialty' },
-  { id: 's43', name: 'Michelle Osei, RPh',      role: 'pharmacist', dept: 'specialty' },
-  { id: 's44', name: 'Daniel Herrera, RPh',     role: 'pharmacist', dept: 'specialty' },
-  { id: 's45', name: 'Stephanie Park, RPh',     role: 'pharmacist', dept: 'specialty' },
-  { id: 's46', name: 'Tamara Gibson, CPhT',     role: 'tech',       dept: 'specialty' },
-  { id: 's47', name: 'Ryan O\'Brien, CPhT',     role: 'tech',       dept: 'specialty' },
-  { id: 's48', name: 'Victoria Lane, CPhT',     role: 'tech',       dept: 'specialty' },
-  { id: 's49', name: 'William Cruz, CPhT',      role: 'tech',       dept: 'specialty' },
-  { id: 's50', name: 'Aisha Mohammed, CPhT',    role: 'tech',       dept: 'specialty' },
-  { id: 's51', name: 'Brian Lawson, CPhT',      role: 'tech',       dept: 'specialty' },
-  { id: 's52', name: 'Courtney Reed, CPhT',     role: 'tech',       dept: 'specialty' },
-  { id: 's53', name: 'Dennis Yoo, CPhT',        role: 'tech',       dept: 'specialty' },
-  { id: 's54', name: 'Elena Vasquez, CPhT',     role: 'tech',       dept: 'specialty' },
-  { id: 's55', name: 'Frederick Moss, CPhT',    role: 'tech',       dept: 'specialty' },
-  { id: 's56', name: 'Gina Russo, CPhT',        role: 'tech',       dept: 'specialty' },
-  { id: 's57', name: 'Harold Kim, CPhT',        role: 'tech',       dept: 'specialty' },
-  { id: 's58', name: 'Irene Walsh, CPhT',       role: 'tech',       dept: 'specialty' },
-  { id: 's59', name: 'Jordan Maxwell, CPhT',    role: 'tech',       dept: 'specialty' },
-  { id: 's60', name: 'Kayla Bennett, CPhT',     role: 'tech',       dept: 'specialty' },
+  { id: 's41', name: 'Catherine Wolfe, RPh',    role: 'pharmacist', dept: 'specialty', defaultShift: 'standard' },
+  { id: 's42', name: 'Andrew Jacobs, RPh',      role: 'pharmacist', dept: 'specialty', defaultShift: 'early' },
+  { id: 's43', name: 'Michelle Osei, RPh',      role: 'pharmacist', dept: 'specialty', defaultShift: 'standard' },
+  { id: 's44', name: 'Daniel Herrera, RPh',     role: 'pharmacist', dept: 'specialty', defaultShift: 'late' },
+  { id: 's45', name: 'Stephanie Park, RPh',     role: 'pharmacist', dept: 'specialty', defaultShift: 'standard' },
+  { id: 's46', name: 'Tamara Gibson, CPhT',     role: 'tech',       dept: 'specialty', defaultShift: 'standard' },
+  { id: 's47', name: 'Ryan O\'Brien, CPhT',     role: 'tech',       dept: 'specialty', defaultShift: 'early' },
+  { id: 's48', name: 'Victoria Lane, CPhT',     role: 'tech',       dept: 'specialty', defaultShift: 'standard' },
+  { id: 's49', name: 'William Cruz, CPhT',      role: 'tech',       dept: 'specialty', defaultShift: 'late' },
+  { id: 's50', name: 'Aisha Mohammed, CPhT',    role: 'tech',       dept: 'specialty', defaultShift: 'standard' },
+  { id: 's51', name: 'Brian Lawson, CPhT',      role: 'tech',       dept: 'specialty', defaultShift: 'early' },
+  { id: 's52', name: 'Courtney Reed, CPhT',     role: 'tech',       dept: 'specialty', defaultShift: 'standard' },
+  { id: 's53', name: 'Dennis Yoo, CPhT',        role: 'tech',       dept: 'specialty', defaultShift: 'late' },
+  { id: 's54', name: 'Elena Vasquez, CPhT',     role: 'tech',       dept: 'specialty', defaultShift: 'standard' },
+  { id: 's55', name: 'Frederick Moss, CPhT',    role: 'tech',       dept: 'specialty', defaultShift: 'early' },
+  { id: 's56', name: 'Gina Russo, CPhT',        role: 'tech',       dept: 'specialty', defaultShift: 'standard' },
+  { id: 's57', name: 'Harold Kim, CPhT',        role: 'tech',       dept: 'specialty', defaultShift: 'late' },
+  { id: 's58', name: 'Irene Walsh, CPhT',       role: 'tech',       dept: 'specialty', defaultShift: 'standard' },
+  { id: 's59', name: 'Jordan Maxwell, CPhT',    role: 'tech',       dept: 'specialty', defaultShift: 'early' },
+  { id: 's60', name: 'Kayla Bennett, CPhT',     role: 'tech',       dept: 'specialty', defaultShift: 'standard' },
 ];
 
 // ═══════════════════════════════════════════════════════════════
@@ -1398,12 +1410,42 @@ function defaultState() {
   return { staff, statuses, log: [], schedule: {}, nextId: 100 };
 }
 
+function migrateState(s) {
+  // Add defaultShift to staff that don't have it
+  s.staff.forEach(p => {
+    if (!p.defaultShift) p.defaultShift = 'standard';
+  });
+  // Migrate old boolean schedule entries to shift strings
+  if (s.schedule) {
+    Object.keys(s.schedule).forEach(monthKey => {
+      const month = s.schedule[monthKey];
+      Object.keys(month).forEach(personId => {
+        const personSched = month[personId];
+        if (typeof personSched === 'object' && personSched !== null) {
+          Object.keys(personSched).forEach(day => {
+            const val = personSched[day];
+            // Old format: true/false → convert to shift/off
+            if (val === true) {
+              const person = s.staff.find(p => p.id === personId);
+              personSched[day] = (person && person.defaultShift) || 'standard';
+            } else if (val === false) {
+              personSched[day] = 'off';
+            }
+            // Already a string (new format) — leave it alone
+          });
+        }
+      });
+    });
+  }
+  return s;
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem('pharmacyRatioTracker');
     if (raw) {
       const p = JSON.parse(raw);
-      if (p.staff && p.statuses) return p;
+      if (p.staff && p.statuses) return migrateState(p);
     }
   } catch(e) {}
   return defaultState();

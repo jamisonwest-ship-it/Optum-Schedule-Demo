@@ -1051,7 +1051,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 2;
-  min-width: 38px;
+  min-width: 46px;
   border-bottom: 2px solid var(--gray-100);
 }
 
@@ -1124,13 +1124,26 @@ body {
 }
 
 .shift-cell {
-  width: 36px;
-  height: 26px;
-  border-radius: 3px;
-  display: inline-block;
+  width: 44px;
+  height: 30px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .shift-cell.on { background: var(--optum-blue-light); border: 1px solid rgba(0,38,119,.15); }
+.shift-cell.on.shift-early    { background: #e0f0fe; border-color: #93c5fd; }
+.shift-cell.on.shift-standard { background: var(--green-bg); border-color: var(--green-border); }
+.shift-cell.on.shift-late     { background: var(--purple-bg); border-color: var(--purple-border); }
 .shift-cell.off { background: transparent; }
+.shift-cell-label {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+}
+.shift-cell.on.shift-early .shift-cell-label    { color: var(--optum-blue); }
+.shift-cell.on.shift-standard .shift-cell-label { color: var(--green); }
+.shift-cell.on.shift-late .shift-cell-label     { color: var(--purple); }
 
 /* ── Week / Month Grid ───────────────────────────────────────── */
 .period-grid-wrap {
@@ -1200,11 +1213,20 @@ body {
 }
 
 .day-status-cell {
-  width: 40px;
+  width: 48px;
   height: 28px;
   border-radius: 4px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: -.3px;
 }
+.day-status-cell.st-green  { color: var(--green); }
+.day-status-cell.st-yellow { color: var(--yellow); }
+.day-status-cell.st-red    { color: var(--red); }
+.day-status-cell.st-none   { color: var(--gray-300); }
 .day-status-cell.st-green  { background: var(--green-bg); border: 1px solid var(--green-border); }
 .day-status-cell.st-yellow { background: var(--yellow-bg); border: 1px solid var(--yellow-border); }
 .day-status-cell.st-red    { background: var(--red-bg); border: 1px solid var(--red-border); }
@@ -1229,6 +1251,162 @@ body {
 .shift-select.shift-standard { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
 .shift-select.shift-late     { background: var(--purple-bg); color: var(--purple); border-color: var(--purple-border); }
 .shift-select.shift-off      { background: var(--gray-50); color: var(--gray-300); border-color: var(--gray-100); }
+
+/* ── Guide Panel (Collapsible Legend) ──────────────────────────── */
+.guide-panel {
+  background: var(--white);
+  border-bottom: 1px solid var(--gray-100);
+  overflow: hidden;
+}
+.guide-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-400);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.guide-toggle:hover { color: var(--gray-600); }
+.guide-toggle .guide-arrow {
+  transition: transform .2s;
+  font-size: 14px;
+}
+.guide-panel.collapsed .guide-arrow { transform: rotate(-90deg); }
+.guide-panel.collapsed .guide-body { display: none; }
+.guide-body {
+  padding: 0 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guide-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: stretch;
+}
+.guide-row-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--gray-300);
+  width: 100%;
+  margin-bottom: 2px;
+}
+.guide-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-100);
+  font-size: 12px;
+  line-height: 1.4;
+  flex: 1;
+  min-width: 150px;
+}
+.guide-swatch {
+  width: 20px; height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.guide-item-text {
+  display: flex;
+  flex-direction: column;
+}
+.guide-item-title {
+  font-weight: 700;
+  color: var(--gray-700);
+  font-size: 12px;
+}
+.guide-item-desc {
+  font-weight: 400;
+  color: var(--gray-400);
+  font-size: 11px;
+}
+.guide-shift-letter {
+  width: 24px; height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* ── Dept Ratio Summary Row ────────────────────────────────────── */
+.day-grid .ratio-summary-row td {
+  padding: 2px 1px;
+  border-bottom: 2px solid var(--gray-100);
+  height: 24px;
+}
+.ratio-slot {
+  width: 44px;
+  height: 20px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: -.2px;
+}
+.ratio-slot.rs-green  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.ratio-slot.rs-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+.ratio-slot.rs-red    { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.ratio-slot.rs-none   { background: var(--gray-50); color: var(--gray-300); }
+
+/* ── Current Time Indicator ────────────────────────────────────── */
+.day-grid th.current-slot { box-shadow: inset 0 -3px 0 var(--optum-orange); }
+.day-grid td.current-slot-cell { background: rgba(255, 97, 43, .06); }
+
+/* ── Today Column Highlight ────────────────────────────────────── */
+.period-grid th.today-col {
+  background: var(--optum-orange-light) !important;
+  color: var(--optum-orange) !important;
+  font-weight: 800;
+}
+.period-grid td.today-col { background: rgba(255, 97, 43, .04); }
+
+/* ── Admin Shift Legend ────────────────────────────────────────── */
+.admin-shift-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: var(--gray-50);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-100);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray-600);
+  align-items: center;
+}
+.admin-shift-legend .legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 12px;
+}
+.admin-shift-legend .legend-chip.chip-early    { background: #e0f0fe; color: var(--optum-blue); }
+.admin-shift-legend .legend-chip.chip-standard { background: var(--green-bg); color: var(--green); }
+.admin-shift-legend .legend-chip.chip-late     { background: var(--purple-bg); color: var(--purple); }
+.admin-shift-legend .legend-chip.chip-off      { background: var(--gray-50); color: var(--gray-300); border: 1px solid var(--gray-100); }
 </style>
 </head>
 <body>
@@ -1274,12 +1452,62 @@ body {
   <button class="btn-today" id="dateToday">Today</button>
 </div>
 
-<!-- ── Grid Legend ────────────────────────────────────────── -->
-<div class="grid-legend">
-  <span class="grid-legend-item"><span class="grid-legend-swatch" style="background:var(--green-bg);border:1px solid var(--green-border)"></span> Within ratio</span>
-  <span class="grid-legend-item"><span class="grid-legend-swatch" style="background:var(--yellow-bg);border:1px solid var(--yellow-border)"></span> At limit</span>
-  <span class="grid-legend-item"><span class="grid-legend-swatch" style="background:var(--red-bg);border:1px solid var(--red-border)"></span> Over ratio</span>
-  <span class="grid-legend-item"><span class="grid-legend-swatch" style="background:var(--optum-blue-light);border:1px solid rgba(0,38,119,.15)"></span> On shift</span>
+<!-- ── How to Read This Guide ────────────────────────────── -->
+<div class="guide-panel" id="guidePanel">
+  <button class="guide-toggle" id="guideToggle">
+    <span>How to Read This Board</span>
+    <span class="guide-arrow">&#9660;</span>
+  </button>
+  <div class="guide-body">
+    <div class="guide-row">
+      <div class="guide-row-label">Ratio Status Colors</div>
+      <div class="guide-item">
+        <span class="guide-swatch" style="background:var(--green-bg);border:1px solid var(--green-border)"></span>
+        <div class="guide-item-text">
+          <span class="guide-item-title">Safe</span>
+          <span class="guide-item-desc">Fewer than 3 techs per pharmacist</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="guide-swatch" style="background:var(--yellow-bg);border:1px solid var(--yellow-border)"></span>
+        <div class="guide-item-text">
+          <span class="guide-item-title">At Limit</span>
+          <span class="guide-item-desc">Exactly 3 techs per pharmacist</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="guide-swatch" style="background:var(--red-bg);border:1px solid var(--red-border)"></span>
+        <div class="guide-item-text">
+          <span class="guide-item-title">Over Ratio</span>
+          <span class="guide-item-desc">Too many techs, not enough pharmacists</span>
+        </div>
+      </div>
+    </div>
+    <div class="guide-row">
+      <div class="guide-row-label">Shift Types (shown in Day View cells)</div>
+      <div class="guide-item">
+        <span class="guide-shift-letter" style="background:#e0f0fe;color:var(--optum-blue)">E</span>
+        <div class="guide-item-text">
+          <span class="guide-item-title">Early</span>
+          <span class="guide-item-desc">7:00 AM &ndash; 3:00 PM</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="guide-shift-letter" style="background:var(--green-bg);color:var(--green)">S</span>
+        <div class="guide-item-text">
+          <span class="guide-item-title">Standard</span>
+          <span class="guide-item-desc">8:00 AM &ndash; 5:00 PM</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <span class="guide-shift-letter" style="background:var(--purple-bg);color:var(--purple)">L</span>
+        <div class="guide-item-text">
+          <span class="guide-item-title">Late</span>
+          <span class="guide-item-desc">10:00 AM &ndash; 6:00 PM</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ── Main Layout ─────────────────────────────────────────── -->
@@ -1434,10 +1662,10 @@ const SHIFT_TEMPLATES = {
   off:      { label: 'Off',              short: '–', start: null, end: null },
 };
 
-// 30-minute blocks from 7:00 AM to 5:00 PM (last slot starts 4:30 PM)
+// 30-minute blocks from 7:00 AM to 6:00 PM (covers all shifts: Early 7a, Standard 8a, Late ends 6p)
 const TIME_SLOTS = [];
-for (let h = 7.0; h < 17.0; h += 0.5) TIME_SLOTS.push(h);
-// TIME_SLOTS = [7.0, 7.5, 8.0, ... 16.5] — 20 slots
+for (let h = 7.0; h < 18.0; h += 0.5) TIME_SLOTS.push(h);
+// TIME_SLOTS = [7.0, 7.5, 8.0, ... 17.5] — 22 slots
 
 const DEFAULT_STAFF = [
   // ── Home Infusion: 5 Pharmacists, 15 Technicians ──
@@ -1528,6 +1756,119 @@ function defaultState() {
   return { staff, statuses, log: [], schedule: {}, nextId: 100 };
 }
 
+function generateDemoData() {
+  const s = defaultState();
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const today = now.getDate();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const key = year + '-' + String(month + 1).padStart(2, '0');
+  s.schedule[key] = {};
+
+  // Generate varied schedule for the current month
+  s.staff.forEach(p => {
+    s.schedule[key][p.id] = {};
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dow = new Date(year, month, day).getDay();
+      if (dow === 0 || dow === 6) {
+        s.schedule[key][p.id][day] = 'off';
+        continue;
+      }
+      const r = Math.random();
+      if (r < 0.08) {
+        s.schedule[key][p.id][day] = 'off'; // ~8% PTO/sick
+      } else if (r < 0.18) {
+        const shifts = ['early', 'standard', 'late'].filter(sh => sh !== p.defaultShift);
+        s.schedule[key][p.id][day] = shifts[Math.floor(Math.random() * shifts.length)]; // ~10% swapped
+      } else {
+        s.schedule[key][p.id][day] = p.defaultShift; // ~82% normal
+      }
+    }
+  });
+
+  // Force ratio violations: 3 days per dept where 2 pharmacists are off
+  DEPARTMENTS.forEach(dept => {
+    const pharmacists = s.staff.filter(p => p.dept === dept.id && p.role === 'pharmacist');
+    const usedDays = new Set();
+    for (let attempt = 0; attempt < 3; attempt++) {
+      let day;
+      let tries = 0;
+      do {
+        day = Math.floor(Math.random() * daysInMonth) + 1;
+        tries++;
+      } while ((new Date(year, month, day).getDay() === 0 || new Date(year, month, day).getDay() === 6 || usedDays.has(day)) && tries < 50);
+      if (tries >= 50) continue;
+      usedDays.add(day);
+      const shuffled = [...pharmacists].sort(() => Math.random() - 0.5);
+      for (let j = 0; j < Math.min(2, shuffled.length); j++) {
+        s.schedule[key][shuffled[j].id][day] = 'off';
+      }
+    }
+  });
+
+  // Set varied real-time statuses for today (weekday only)
+  const todayDow = now.getDay();
+  if (todayDow !== 0 && todayDow !== 6) {
+    s.staff.forEach(p => {
+      const shift = s.schedule[key][p.id]?.[today] || 'off';
+      if (shift === 'off') {
+        s.statuses[p.id] = 'out';
+      } else {
+        const r = Math.random();
+        if (r < 0.60) s.statuses[p.id] = 'working';
+        else if (r < 0.75) s.statuses[p.id] = 'lunch';
+        else if (r < 0.85) s.statuses[p.id] = 'meeting';
+        else if (r < 0.95) s.statuses[p.id] = 'out';
+        else s.statuses[p.id] = (p.role === 'tech') ? 'nontech' : 'working';
+      }
+    });
+
+    // Ensure visible ratio problems: force 3 pharmacists to non-working status
+    const workingRPh = s.staff.filter(p => p.role === 'pharmacist' && s.statuses[p.id] === 'working');
+    const toRemove = workingRPh.sort(() => Math.random() - 0.5).slice(0, 3);
+    toRemove.forEach((p, i) => {
+      s.statuses[p.id] = i < 2 ? 'lunch' : 'meeting';
+    });
+  }
+
+  // Pre-populate activity log with 18 realistic entries from "today"
+  const transitions = [
+    { from: 'out', to: 'working', weight: 4 },
+    { from: 'working', to: 'lunch', weight: 3 },
+    { from: 'lunch', to: 'working', weight: 3 },
+    { from: 'working', to: 'meeting', weight: 2 },
+    { from: 'meeting', to: 'working', weight: 2 },
+    { from: 'working', to: 'out', weight: 1 },
+  ];
+  const totalWeight = transitions.reduce((sum, t) => sum + t.weight, 0);
+
+  for (let i = 0; i < 18; i++) {
+    const minutesFromStart = Math.floor(Math.random() * 300); // 7am to ~noon
+    const logTime = new Date(year, month, today, 7 + Math.floor(minutesFromStart / 60), minutesFromStart % 60);
+    const person = s.staff[Math.floor(Math.random() * s.staff.length)];
+
+    // Weighted random transition
+    let r = Math.random() * totalWeight;
+    let trans = transitions[0];
+    for (const t of transitions) {
+      r -= t.weight;
+      if (r <= 0) { trans = t; break; }
+    }
+
+    s.log.push({
+      time: logTime.toISOString(),
+      name: person.name,
+      dept: person.dept,
+      from: trans.from,
+      to: trans.to,
+    });
+  }
+  s.log.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+  return s;
+}
+
 function migrateState(s) {
   // Add defaultShift to staff that don't have it
   s.staff.forEach(p => {
@@ -1566,7 +1907,10 @@ function loadState() {
       if (p.staff && p.statuses) return migrateState(p);
     }
   } catch(e) {}
-  return defaultState();
+  // Fresh load — generate rich demo data instead of empty defaults
+  const demo = generateDemoData();
+  localStorage.setItem('pharmacyRatioTracker', JSON.stringify(demo));
+  return demo;
 }
 
 function saveState() {
@@ -1802,6 +2146,35 @@ function getWorstDayStatus(deptId, date) {
   return worst;
 }
 
+function getDayPeakRatio(deptId, date) {
+  let worstRank = 0;
+  let worstRph = 0, worstTech = 0;
+  const rank = { none: 0, green: 1, yellow: 2, red: 3 };
+  for (const slot of TIME_SLOTS) {
+    const deptStaff = state.staff.filter(s => s.dept === deptId);
+    let rph = 0, tech = 0;
+    deptStaff.forEach(s => {
+      if (isPersonOnShiftAtSlot(s.id, date, slot)) {
+        if (s.role === 'pharmacist') rph++;
+        else tech++;
+      }
+    });
+    let st = 'none';
+    if (rph === 0 && tech === 0) st = 'none';
+    else if (rph === 0 && tech > 0) st = 'red';
+    else if (tech > rph * MAX_RATIO) st = 'red';
+    else if (tech >= rph * MAX_RATIO - 1) st = 'yellow';
+    else st = 'green';
+    if (rank[st] > worstRank) {
+      worstRank = rank[st];
+      worstRph = rph;
+      worstTech = tech;
+    }
+  }
+  if (worstRph + worstTech === 0) return '';
+  return worstRph + ':' + worstTech;
+}
+
 function getMonday(d) {
   const date = new Date(d);
   const day = date.getDay();
@@ -1814,18 +2187,25 @@ function getMonday(d) {
 function renderDayView() {
   const area = document.getElementById('gridContent');
   ensureMonthSchedule(viewDate);
+
+  // Determine current time slot index (if viewing today)
+  const now = new Date();
+  const isToday = viewDate.toDateString() === now.toDateString();
+  const currentHour = now.getHours() + now.getMinutes() / 60;
+  const currentSlotIdx = isToday ? TIME_SLOTS.findIndex(s => currentHour >= s && currentHour < s + 0.5) : -1;
+
   let html = '<div class="day-grid-wrap"><table class="day-grid"><thead><tr><th class="name-col">Staff</th>';
 
   // Time slot headers colored by overall ratio across all depts
-  TIME_SLOTS.forEach(slot => {
-    // For the header color, use worst ratio across all departments at this slot
+  TIME_SLOTS.forEach((slot, idx) => {
     let worst = 'none';
     const rank = { none: 0, green: 1, yellow: 2, red: 3 };
     DEPARTMENTS.forEach(dept => {
       const st = calcSlotRatio(dept.id, viewDate, slot);
       if (rank[st] > rank[worst]) worst = st;
     });
-    html += '<th class="slot-header slot-' + worst + '">' + formatSlotHour(slot) + '</th>';
+    const isCurrent = idx === currentSlotIdx;
+    html += '<th class="slot-header slot-' + worst + (isCurrent ? ' current-slot' : '') + '">' + formatSlotHour(slot) + '</th>';
   });
   html += '</tr></thead><tbody>';
 
@@ -1836,14 +2216,44 @@ function renderDayView() {
     // Department divider
     html += '<tr class="dept-divider"><td class="name-cell" colspan="' + (TIME_SLOTS.length + 1) + '">' + esc(dept.name) + '</td></tr>';
 
+    // Department ratio summary row
+    html += '<tr class="ratio-summary-row"><td class="name-cell" style="font-size:10px;font-weight:700;color:var(--gray-300)">RPh : Tech</td>';
+    TIME_SLOTS.forEach((slot, idx) => {
+      const deptStaff = state.staff.filter(s => s.dept === dept.id);
+      let rph = 0, tech = 0;
+      deptStaff.forEach(s => {
+        if (isPersonOnShiftAtSlot(s.id, viewDate, slot)) {
+          if (s.role === 'pharmacist') rph++;
+          else tech++;
+        }
+      });
+      let st = 'none';
+      if (rph === 0 && tech === 0) st = 'none';
+      else if (rph === 0 && tech > 0) st = 'red';
+      else if (tech > rph * MAX_RATIO) st = 'red';
+      else if (tech >= rph * MAX_RATIO - 1) st = 'yellow';
+      else st = 'green';
+      const isCurrent = idx === currentSlotIdx;
+      const label = (rph + tech) > 0 ? rph + ':' + tech : '';
+      html += '<td' + (isCurrent ? ' class="current-slot-cell"' : '') + '><span class="ratio-slot rs-' + st + '">' + label + '</span></td>';
+    });
+    html += '</tr>';
+
     // Pharmacists sub-header
     if (pharmacists.length) {
       html += '<tr class="role-divider"><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacists</td></tr>';
       pharmacists.forEach(p => {
         html += '<tr><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
-        TIME_SLOTS.forEach(slot => {
+        TIME_SLOTS.forEach((slot, idx) => {
           const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
-          html += '<td><span class="shift-cell ' + (on ? 'on' : 'off') + '"></span></td>';
+          const isCurrent = idx === currentSlotIdx;
+          if (on) {
+            const shift = getPersonShift(p.id, viewDate);
+            const letter = SHIFT_TEMPLATES[shift]?.short || '';
+            html += '<td' + (isCurrent ? ' class="current-slot-cell"' : '') + '><span class="shift-cell on shift-' + shift + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
+          } else {
+            html += '<td' + (isCurrent ? ' class="current-slot-cell"' : '') + '><span class="shift-cell off"></span></td>';
+          }
         });
         html += '</tr>';
       });
@@ -1854,9 +2264,16 @@ function renderDayView() {
       html += '<tr class="role-divider"><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacy Technicians</td></tr>';
       techs.forEach(p => {
         html += '<tr><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
-        TIME_SLOTS.forEach(slot => {
+        TIME_SLOTS.forEach((slot, idx) => {
           const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
-          html += '<td><span class="shift-cell ' + (on ? 'on' : 'off') + '"></span></td>';
+          const isCurrent = idx === currentSlotIdx;
+          if (on) {
+            const shift = getPersonShift(p.id, viewDate);
+            const letter = SHIFT_TEMPLATES[shift]?.short || '';
+            html += '<td' + (isCurrent ? ' class="current-slot-cell"' : '') + '><span class="shift-cell on shift-' + shift + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
+          } else {
+            html += '<td' + (isCurrent ? ' class="current-slot-cell"' : '') + '><span class="shift-cell off"></span></td>';
+          }
         });
         html += '</tr>';
       });
@@ -1876,6 +2293,7 @@ function renderWeekView() {
   const area = document.getElementById('gridContent');
   const mon = getMonday(new Date(viewDate));
   const days = [];
+  const todayStr = new Date().toDateString();
   for (let i = 0; i < 5; i++) {
     const d = new Date(mon);
     d.setDate(d.getDate() + i);
@@ -1886,15 +2304,18 @@ function renderWeekView() {
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
   let html = '<div class="period-grid-wrap"><table class="period-grid"><thead><tr><th class="name-col">Department</th>';
   days.forEach((d, i) => {
-    html += '<th>' + dayNames[i] + '<br>' + (d.getMonth() + 1) + '/' + d.getDate() + '</th>';
+    const isToday = d.toDateString() === todayStr;
+    html += '<th' + (isToday ? ' class="today-col"' : '') + '>' + dayNames[i] + '<br>' + (d.getMonth() + 1) + '/' + d.getDate() + '</th>';
   });
   html += '</tr></thead><tbody>';
 
   DEPARTMENTS.forEach(dept => {
     html += '<tr><td class="name-cell">' + esc(dept.name) + '</td>';
     days.forEach(d => {
+      const isToday = d.toDateString() === todayStr;
       const st = getWorstDayStatus(dept.id, d);
-      html += '<td><span class="day-status-cell st-' + st + '"></span></td>';
+      const ratio = getDayPeakRatio(dept.id, d);
+      html += '<td' + (isToday ? ' class="today-col"' : '') + '><span class="day-status-cell st-' + st + '">' + ratio + '</span></td>';
     });
     html += '</tr>';
   });
@@ -1908,6 +2329,7 @@ function renderMonthView() {
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const todayStr = new Date().toDateString();
   ensureMonthSchedule(viewDate);
 
   // Collect weekdays only
@@ -1921,15 +2343,18 @@ function renderMonthView() {
   const dayAbbr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   let html = '<div class="period-grid-wrap"><table class="period-grid"><thead><tr><th class="name-col">Department</th>';
   weekdays.forEach(d => {
-    html += '<th>' + d.getDate() + '<br>' + dayAbbr[d.getDay()] + '</th>';
+    const isToday = d.toDateString() === todayStr;
+    html += '<th' + (isToday ? ' class="today-col"' : '') + '>' + d.getDate() + '<br>' + dayAbbr[d.getDay()] + '</th>';
   });
   html += '</tr></thead><tbody>';
 
   DEPARTMENTS.forEach(dept => {
     html += '<tr><td class="name-cell">' + esc(dept.name) + '</td>';
     weekdays.forEach(d => {
+      const isToday = d.toDateString() === todayStr;
       const st = getWorstDayStatus(dept.id, d);
-      html += '<td><span class="day-status-cell st-' + st + '"></span></td>';
+      const ratio = getDayPeakRatio(dept.id, d);
+      html += '<td' + (isToday ? ' class="today-col"' : '') + '><span class="day-status-cell st-' + st + '">' + ratio + '</span></td>';
     });
     html += '</tr>';
   });
@@ -2175,7 +2600,13 @@ function renderSchedule() {
   const dayNames = ['S','M','T','W','T','F','S'];
   const shiftKeys = ['early', 'standard', 'late', 'off'];
   const grid = document.getElementById('scheduleGrid');
-  let html = '';
+  let html = '<div class="admin-shift-legend">'
+    + '<span style="font-weight:700;color:var(--gray-500)">Shift Key:</span>'
+    + '<span class="legend-chip chip-early">E = Early (7a&ndash;3p)</span>'
+    + '<span class="legend-chip chip-standard">S = Standard (8a&ndash;5p)</span>'
+    + '<span class="legend-chip chip-late">L = Late (10a&ndash;6p)</span>'
+    + '<span class="legend-chip chip-off">&ndash; = Off</span>'
+    + '</div>';
 
   DEPARTMENTS.forEach(dept => {
     const people = state.staff.filter(s => s.dept === dept.id);
@@ -2353,6 +2784,21 @@ function updateDateLabel() {
   } else {
     label.textContent = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GUIDE PANEL TOGGLE
+// ═══════════════════════════════════════════════════════════════
+
+document.getElementById('guideToggle').addEventListener('click', () => {
+  const panel = document.getElementById('guidePanel');
+  panel.classList.toggle('collapsed');
+  localStorage.setItem('guideCollapsed', panel.classList.contains('collapsed'));
+});
+
+// Restore guide collapse state (starts expanded on first visit)
+if (localStorage.getItem('guideCollapsed') === 'true') {
+  document.getElementById('guidePanel').classList.add('collapsed');
 }
 
 // ═══════════════════════════════════════════════════════════════

@@ -1479,6 +1479,49 @@ td.period-shift-cell:hover .psc-off { border: 1px dashed var(--gray-200); border
 .admin-shift-legend .legend-chip.chip-standard { background: var(--green-bg); color: var(--green); }
 .admin-shift-legend .legend-chip.chip-late     { background: var(--purple-bg); color: var(--purple); }
 .admin-shift-legend .legend-chip.chip-off      { background: var(--gray-50); color: var(--gray-300); border: 1px solid var(--gray-100); }
+
+/* ── Shift Picker Popup ───────────────────────────────────── */
+.shift-picker {
+  display: none;
+  position: fixed;
+  z-index: 250;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.18);
+  padding: 8px;
+  gap: 6px;
+  flex-direction: row;
+}
+.shift-picker.open { display: flex; }
+.shift-picker-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 8px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.shift-picker-btn:hover { background: var(--gray-50); }
+.shift-picker-btn.active { border-color: #E87722; }
+.spb-chip {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+.spb-chip.chip-early    { background: #e0f0fe; color: var(--optum-blue); }
+.spb-chip.chip-standard { background: var(--green-bg); color: var(--green); }
+.spb-chip.chip-late     { background: var(--purple-bg); color: var(--purple); }
+.spb-chip.chip-off      { background: var(--gray-50); color: var(--gray-300); border: 1px solid var(--gray-100); }
+.spb-label { font-size: 10px; color: var(--gray-400); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -1698,6 +1741,23 @@ td.period-shift-cell:hover .psc-off { border: 1px dashed var(--gray-200); border
 
 <!-- ── Toast ───────────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
+
+<!-- ── Shift Picker Popup ─────────────────────────────────── -->
+<div class="shift-picker" id="shiftPicker">
+  <button class="shift-picker-btn" data-shift="early">
+    <span class="spb-chip chip-early">E</span><span class="spb-label">Early</span>
+  </button>
+  <button class="shift-picker-btn" data-shift="standard">
+    <span class="spb-chip chip-standard">S</span><span class="spb-label">Standard</span>
+  </button>
+  <button class="shift-picker-btn" data-shift="late">
+    <span class="spb-chip chip-late">L</span><span class="spb-label">Late</span>
+  </button>
+  <button class="shift-picker-btn" data-shift="off">
+    <span class="spb-chip chip-off">&ndash;</span><span class="spb-label">Off</span>
+  </button>
+</div>
+
 <script>
 // ═══════════════════════════════════════════════════════════════
 // DATA MODEL
@@ -2193,25 +2253,74 @@ function isPersonOnShiftAtSlot(personId, date, slotHour) {
 // Collapsed department sections per view
 const collapsedDepts = { day: new Set(), week: new Set(), month: new Set() };
 
-function togglePersonDay(personId, date) {
+// ── Shift Picker ─────────────────────────────────────────────
+let pickerPersonId = null;
+let pickerDate = null;
+
+function openShiftPicker(personId, date, anchorEl) {
   if (!canEditPerson(personId)) return;
-  const person = state.staff.find(s => s.id === personId);
-  if (!person) return;
-  const key = dateKey(date);
-  ensureMonthSchedule(date);
-  const day = date.getDate();
-  const currentShift = state.schedule[key][personId][day];
-  if (currentShift !== 'off') {
-    state.schedule[key][personId][day] = 'off';
-  } else {
-    state.schedule[key][personId][day] = person.defaultShift || 'standard';
-  }
+  pickerPersonId = personId;
+  pickerDate = date;
+
+  const currentShift = getPersonShift(personId, date);
+  const picker = document.getElementById('shiftPicker');
+  picker.querySelectorAll('.shift-picker-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.shift === currentShift);
+  });
+
+  // Position near the clicked cell
+  const rect = anchorEl.getBoundingClientRect();
+  let top = rect.bottom + 4;
+  let left = rect.left;
+
+  // Clamp to viewport
+  const pw = picker.offsetWidth || 220;
+  const ph = picker.offsetHeight || 80;
+  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+  if (left < 8) left = 8;
+  if (top + ph > window.innerHeight - 8) top = rect.top - ph - 4;
+
+  picker.style.top = top + 'px';
+  picker.style.left = left + 'px';
+  picker.classList.add('open');
+}
+
+function closeShiftPicker() {
+  document.getElementById('shiftPicker').classList.remove('open');
+  pickerPersonId = null;
+  pickerDate = null;
+}
+
+function selectShift(newShift) {
+  if (!pickerPersonId || !pickerDate) return;
+  const person = state.staff.find(s => s.id === pickerPersonId);
+  if (!person) { closeShiftPicker(); return; }
+  const key = dateKey(pickerDate);
+  ensureMonthSchedule(pickerDate);
+  const day = pickerDate.getDate();
+  state.schedule[key][pickerPersonId][day] = newShift;
   saveState();
+  closeShiftPicker();
   renderGrid();
   renderOverall();
-  const newShift = state.schedule[key][personId][day];
   showToast(person.name + ' → ' + (newShift === 'off' ? 'Off' : SHIFT_TEMPLATES[newShift].label));
 }
+
+// Wire picker button clicks
+document.getElementById('shiftPicker').addEventListener('click', e => {
+  const btn = e.target.closest('.shift-picker-btn');
+  if (btn) selectShift(btn.dataset.shift);
+});
+
+// Close picker on outside click
+document.addEventListener('mousedown', e => {
+  const picker = document.getElementById('shiftPicker');
+  if (!picker.classList.contains('open')) return;
+  if (picker.contains(e.target)) return;
+  // Don't close if clicking another shift cell (openShiftPicker will handle it)
+  if (e.target.closest('[data-toggle-person]')) return;
+  closeShiftPicker();
+});
 
 function formatDateAttr(d) {
   return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -2399,12 +2508,10 @@ function renderDayView() {
     cell.addEventListener('click', () => openStatusModal(cell.dataset.person));
   });
 
-  // Click on shift cell → toggle person day
+  // Click on shift cell → open shift picker
   area.querySelectorAll('td.shift-toggle-cell[data-toggle-person]').forEach(cell => {
     cell.addEventListener('click', () => {
-      const personId = cell.dataset.togglePerson;
-      const date = parseDateAttr(cell.dataset.toggleDate);
-      togglePersonDay(personId, date);
+      openShiftPicker(cell.dataset.togglePerson, parseDateAttr(cell.dataset.toggleDate), cell);
     });
   });
 
@@ -2514,10 +2621,10 @@ function renderWeekView() {
     cell.addEventListener('click', () => openStatusModal(cell.dataset.person));
   });
 
-  // Click on shift cell → toggle
+  // Click on shift cell → open shift picker
   area.querySelectorAll('td.period-shift-cell[data-toggle-person]').forEach(cell => {
     cell.addEventListener('click', () => {
-      togglePersonDay(cell.dataset.togglePerson, parseDateAttr(cell.dataset.toggleDate));
+      openShiftPicker(cell.dataset.togglePerson, parseDateAttr(cell.dataset.toggleDate), cell);
     });
   });
 
@@ -2631,10 +2738,10 @@ function renderMonthView() {
     cell.addEventListener('click', () => openStatusModal(cell.dataset.person));
   });
 
-  // Click on shift cell → toggle
+  // Click on shift cell → open shift picker
   area.querySelectorAll('td.period-shift-cell[data-toggle-person]').forEach(cell => {
     cell.addEventListener('click', () => {
-      togglePersonDay(cell.dataset.togglePerson, parseDateAttr(cell.dataset.toggleDate));
+      openShiftPicker(cell.dataset.togglePerson, parseDateAttr(cell.dataset.toggleDate), cell);
     });
   });
 
@@ -2750,6 +2857,7 @@ document.getElementById('statusModal').addEventListener('click', e => {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
+    closeShiftPicker();
     closeStatusModal();
     document.getElementById('adminOverlay').classList.remove('open');
     closeMobileLog();
@@ -3052,6 +3160,7 @@ document.getElementById('dateToday').addEventListener('click', () => {
 });
 
 function renderGrid() {
+  closeShiftPicker();
   updateDateLabel();
   if (currentView === 'day') renderDayView();
   else if (currentView === 'week') renderWeekView();

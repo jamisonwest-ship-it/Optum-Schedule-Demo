@@ -1123,6 +1123,7 @@ body {
   background: var(--white);
 }
 
+/* ── Availability Board Cells (Day View) ──────────────────── */
 .shift-cell {
   width: 44px;
   height: 30px;
@@ -1130,32 +1131,67 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  transition: opacity .1s;
 }
-.shift-cell.on { background: var(--optum-blue-light); border: 1px solid rgba(0,38,119,.15); }
-.shift-cell.on.shift-early    { background: #e0f0fe; border-color: #93c5fd; }
-.shift-cell.on.shift-standard { background: var(--green-bg); border-color: var(--green-border); }
-.shift-cell.on.shift-late     { background: var(--purple-bg); border-color: var(--purple-border); }
-.shift-cell.off { background: transparent; }
 .shift-cell-label {
   font-size: 10px;
   font-weight: 800;
   line-height: 1;
+  position: relative;
+  z-index: 1;
 }
-.shift-cell.on.shift-early .shift-cell-label    { color: var(--optum-blue); }
-.shift-cell.on.shift-standard .shift-cell-label { color: var(--green); }
-.shift-cell.on.shift-late .shift-cell-label     { color: var(--purple); }
 
-/* ── Slot Override Indicators ──────────────────────────────── */
-.shift-cell.slot-override { position: relative; }
-.shift-cell.slot-override::after {
+/* State 1: On shift + Available (default — counting toward ratio) */
+.shift-cell.avail.shift-early    { background: #e0f0fe; border: 1px solid #93c5fd; }
+.shift-cell.avail.shift-standard { background: var(--green-bg); border: 1px solid var(--green-border); }
+.shift-cell.avail.shift-late     { background: var(--purple-bg); border: 1px solid var(--purple-border); }
+.shift-cell.avail.shift-early .shift-cell-label    { color: var(--optum-blue); }
+.shift-cell.avail.shift-standard .shift-cell-label { color: var(--green); }
+.shift-cell.avail.shift-late .shift-cell-label     { color: var(--purple); }
+
+/* State 2: On shift + UNAVAILABLE (out — NOT counting toward ratio) */
+.shift-cell.unavail { border: 2px solid var(--red); overflow: hidden; }
+.shift-cell.unavail.shift-early    { background: #e0f0fe66; }
+.shift-cell.unavail.shift-standard { background: #edf8f266; }
+.shift-cell.unavail.shift-late     { background: #f5f0ff66; }
+.shift-cell.unavail::before {
+  content: ''; position: absolute; inset: 0; border-radius: 3px;
+  background: repeating-linear-gradient(-45deg, transparent, transparent 3px, rgba(196,43,28,.13) 3px, rgba(196,43,28,.13) 5px);
+  z-index: 0;
+}
+.shift-cell.unavail .shift-cell-label {
+  color: var(--gray-300); text-decoration: line-through; opacity: .6;
+}
+.shift-cell.unavail::after {
   content: ''; position: absolute; top: 2px; right: 2px;
-  width: 5px; height: 5px; border-radius: 50%;
-  background: var(--optum-orange);
+  width: 6px; height: 6px; border-radius: 50%; background: var(--red); z-index: 2;
 }
-.shift-cell.on.slot-override-added { border: 1px dashed currentColor; }
-.shift-cell.off.slot-override-removed {
-  background: var(--gray-50); border: 1px dashed var(--gray-200); border-radius: 4px;
+
+/* State 3: Off shift, no override (not scheduled) */
+.shift-cell.off-shift { background: var(--gray-50); border: 1px solid transparent; }
+
+/* State 4: Off shift + COVERING (added to ratio via override) */
+.shift-cell.covering { border: 2px dashed var(--green-border); background: #edf8f244; }
+.shift-cell.covering .shift-cell-label { color: var(--green); font-style: italic; }
+.shift-cell.covering::after {
+  content: ''; position: absolute; top: 2px; right: 2px;
+  width: 6px; height: 6px; border-radius: 50%; background: var(--optum-orange); z-index: 2;
 }
+
+/* Shift badge next to name */
+.shift-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 16px; border-radius: 3px;
+  font-size: 9px; font-weight: 800; margin-left: 6px;
+  vertical-align: middle; flex-shrink: 0; line-height: 1;
+}
+.shift-badge.sb-early    { background: #e0f0fe; color: var(--optum-blue); border: 1px solid #93c5fd; }
+.shift-badge.sb-standard { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.shift-badge.sb-late     { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+.shift-badge.sb-off      { background: var(--gray-50); color: var(--gray-300); border: 1px solid var(--gray-100); }
+
+/* Reset icon */
 .slot-reset-icon {
   margin-left: 4px; font-size: 11px; color: var(--optum-orange);
   cursor: pointer; opacity: 0.7;
@@ -1251,8 +1287,10 @@ body {
 
 /* ── Clickable Shift Cells (Day/Week/Month toggle) ──────────── */
 td.shift-toggle-cell { cursor: pointer; }
-td.shift-toggle-cell:hover .shift-cell.on { opacity: .7; }
-td.shift-toggle-cell:hover .shift-cell.off { border: 1px dashed var(--gray-200); border-radius: 4px; }
+td.shift-toggle-cell:hover .shift-cell.avail { opacity: .7; }
+td.shift-toggle-cell:hover .shift-cell.unavail { opacity: .85; }
+td.shift-toggle-cell:hover .shift-cell.off-shift { border: 1px dashed var(--gray-200); }
+td.shift-toggle-cell:hover .shift-cell.covering { opacity: .7; }
 
 td.period-shift-cell { cursor: pointer; }
 td.period-shift-cell:hover .psc-on { opacity: .7; }
@@ -2262,11 +2300,15 @@ function getPersonShift(personId, date) {
 }
 
 function isPersonOnShiftAtSlot(personId, date, slotHour) {
-  const shift = getPersonShift(personId, date);
-  const tmpl = SHIFT_TEMPLATES[shift];
-  const baseOn = (tmpl && tmpl.start !== null) ? (slotHour >= tmpl.start && slotHour < tmpl.end) : false;
+  const baseOn = isPersonBaseOnShift(personId, date, slotHour);
   if (hasSlotOverride(personId, date, slotHour)) return !baseOn;
   return baseOn;
+}
+
+function isPersonBaseOnShift(personId, date, slotHour) {
+  const shift = getPersonShift(personId, date);
+  const tmpl = SHIFT_TEMPLATES[shift];
+  return (tmpl && tmpl.start !== null) ? (slotHour >= tmpl.start && slotHour < tmpl.end) : false;
 }
 
 function hasSlotOverride(personId, date, slotHour) {
@@ -2524,23 +2566,31 @@ function renderDayView() {
     if (pharmacists.length) {
       html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacists</td></tr>';
       pharmacists.forEach(p => {
+        const shift = getPersonShift(p.id, viewDate);
+        const shiftLetter = SHIFT_TEMPLATES[shift]?.short || '–';
+        const badgeCls = 'shift-badge sb-' + shift;
         const hasOvr = personHasOverridesForDay(p.id, viewDate);
-        const resetIcon = hasOvr ? '<span class="slot-reset-icon" data-reset-person="' + p.id + '" data-reset-date="' + dateStr + '" title="Reset slot overrides">&#8634;</span>' : '';
-        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + resetIcon + '</td>';
+        const resetIcon = hasOvr ? '<span class="slot-reset-icon" data-reset-person="' + p.id + '" data-reset-date="' + dateStr + '" title="Reset availability — restore shift defaults">&#8634;</span>' : '';
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '<span class="' + badgeCls + '">' + shiftLetter + '</span>' + resetIcon + '</td>';
         TIME_SLOTS.forEach((slot, idx) => {
-          const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
+          const baseOn = isPersonBaseOnShift(p.id, viewDate, slot);
           const ovr = hasSlotOverride(p.id, viewDate, slot);
           const isCurrent = idx === currentSlotIdx;
-          const cls = 'shift-toggle-cell' + (isCurrent ? ' current-slot-cell' : '');
-          if (on) {
-            const shift = getPersonShift(p.id, viewDate);
-            const letter = SHIFT_TEMPLATES[shift]?.short || '';
-            const ovrCls = ovr ? ' slot-override slot-override-added' : '';
-            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"><span class="shift-cell on shift-' + shift + ovrCls + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
+          const tdCls = 'shift-toggle-cell' + (isCurrent ? ' current-slot-cell' : '');
+          const dataAttrs = ' data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"';
+          const letter = SHIFT_TEMPLATES[shift]?.short || '';
+          const shiftLabel = SHIFT_TEMPLATES[shift]?.label || '';
+          var cellHtml;
+          if (baseOn && !ovr) {
+            cellHtml = '<span class="shift-cell avail shift-' + shift + '" title="Available — ' + shiftLabel + '"><span class="shift-cell-label">' + letter + '</span></span>';
+          } else if (baseOn && ovr) {
+            cellHtml = '<span class="shift-cell unavail shift-' + shift + '" title="Unavailable — marked out from ' + shiftLabel + '"><span class="shift-cell-label">' + letter + '</span></span>';
+          } else if (!baseOn && !ovr) {
+            cellHtml = '<span class="shift-cell off-shift" title="Not scheduled"></span>';
           } else {
-            const ovrCls = ovr ? ' slot-override slot-override-removed' : '';
-            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"><span class="shift-cell off' + ovrCls + '"></span></td>';
+            cellHtml = '<span class="shift-cell covering" title="Covering — added for this slot"><span class="shift-cell-label">+</span></span>';
           }
+          html += '<td class="' + tdCls + '"' + dataAttrs + '>' + cellHtml + '</td>';
         });
         html += '</tr>';
       });
@@ -2550,23 +2600,31 @@ function renderDayView() {
     if (techs.length) {
       html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacy Technicians</td></tr>';
       techs.forEach(p => {
+        const shift = getPersonShift(p.id, viewDate);
+        const shiftLetter = SHIFT_TEMPLATES[shift]?.short || '–';
+        const badgeCls = 'shift-badge sb-' + shift;
         const hasOvr = personHasOverridesForDay(p.id, viewDate);
-        const resetIcon = hasOvr ? '<span class="slot-reset-icon" data-reset-person="' + p.id + '" data-reset-date="' + dateStr + '" title="Reset slot overrides">&#8634;</span>' : '';
-        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + resetIcon + '</td>';
+        const resetIcon = hasOvr ? '<span class="slot-reset-icon" data-reset-person="' + p.id + '" data-reset-date="' + dateStr + '" title="Reset availability — restore shift defaults">&#8634;</span>' : '';
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '<span class="' + badgeCls + '">' + shiftLetter + '</span>' + resetIcon + '</td>';
         TIME_SLOTS.forEach((slot, idx) => {
-          const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
+          const baseOn = isPersonBaseOnShift(p.id, viewDate, slot);
           const ovr = hasSlotOverride(p.id, viewDate, slot);
           const isCurrent = idx === currentSlotIdx;
-          const cls = 'shift-toggle-cell' + (isCurrent ? ' current-slot-cell' : '');
-          if (on) {
-            const shift = getPersonShift(p.id, viewDate);
-            const letter = SHIFT_TEMPLATES[shift]?.short || '';
-            const ovrCls = ovr ? ' slot-override slot-override-added' : '';
-            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"><span class="shift-cell on shift-' + shift + ovrCls + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
+          const tdCls = 'shift-toggle-cell' + (isCurrent ? ' current-slot-cell' : '');
+          const dataAttrs = ' data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"';
+          const letter = SHIFT_TEMPLATES[shift]?.short || '';
+          const shiftLabel = SHIFT_TEMPLATES[shift]?.label || '';
+          var cellHtml;
+          if (baseOn && !ovr) {
+            cellHtml = '<span class="shift-cell avail shift-' + shift + '" title="Available — ' + shiftLabel + '"><span class="shift-cell-label">' + letter + '</span></span>';
+          } else if (baseOn && ovr) {
+            cellHtml = '<span class="shift-cell unavail shift-' + shift + '" title="Unavailable — marked out from ' + shiftLabel + '"><span class="shift-cell-label">' + letter + '</span></span>';
+          } else if (!baseOn && !ovr) {
+            cellHtml = '<span class="shift-cell off-shift" title="Not scheduled"></span>';
           } else {
-            const ovrCls = ovr ? ' slot-override slot-override-removed' : '';
-            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"><span class="shift-cell off' + ovrCls + '"></span></td>';
+            cellHtml = '<span class="shift-cell covering" title="Covering — added for this slot"><span class="shift-cell-label">+</span></span>';
           }
+          html += '<td class="' + tdCls + '"' + dataAttrs + '>' + cellHtml + '</td>';
         });
         html += '</tr>';
       });
@@ -2581,7 +2639,7 @@ function renderDayView() {
     cell.addEventListener('click', () => openStatusModal(cell.dataset.person));
   });
 
-  // Click on reset icon → clear all slot overrides for that person/day
+  // Click on reset icon → restore availability to shift defaults
   area.querySelectorAll('.slot-reset-icon[data-reset-person]').forEach(icon => {
     icon.addEventListener('click', e => {
       e.stopPropagation();
@@ -2590,18 +2648,27 @@ function renderDayView() {
       const person = state.staff.find(s => s.id === personId);
       clearSlotOverrides(personId, date);
       saveState(); renderGrid(); renderOverall();
-      showToast((person ? person.name : 'Staff') + ' — slot overrides reset');
+      showToast((person ? person.name : 'Staff') + ' — availability restored to shift defaults');
     });
   });
 
-  // Click on shift cell → toggle individual half-hour slot
+  // Click on slot cell → toggle availability for that half-hour
   area.querySelectorAll('td.shift-toggle-cell[data-toggle-person]').forEach(cell => {
     cell.addEventListener('click', () => {
       const personId = cell.dataset.togglePerson;
       const date = parseDateAttr(cell.dataset.toggleDate);
       const slotHour = parseFloat(cell.dataset.toggleSlot);
+      const person = state.staff.find(s => s.id === personId);
+      const name = person ? person.name : 'Staff';
+      const baseOn = isPersonBaseOnShift(personId, date, slotHour);
+      const wasOverridden = hasSlotOverride(personId, date, slotHour);
       toggleSlotOverride(personId, date, slotHour);
       saveState(); renderGrid(); renderOverall();
+      if (!wasOverridden) {
+        showToast(name + (baseOn ? ' — marked unavailable at ' : ' — covering at ') + formatSlotHour(slotHour));
+      } else {
+        showToast(name + (baseOn ? ' — restored to available at ' : ' — removed from coverage at ') + formatSlotHour(slotHour));
+      }
     });
   });
 

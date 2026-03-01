@@ -1145,6 +1145,23 @@ body {
 .shift-cell.on.shift-standard .shift-cell-label { color: var(--green); }
 .shift-cell.on.shift-late .shift-cell-label     { color: var(--purple); }
 
+/* ── Slot Override Indicators ──────────────────────────────── */
+.shift-cell.slot-override { position: relative; }
+.shift-cell.slot-override::after {
+  content: ''; position: absolute; top: 2px; right: 2px;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--optum-orange);
+}
+.shift-cell.on.slot-override-added { border: 1px dashed currentColor; }
+.shift-cell.off.slot-override-removed {
+  background: var(--gray-50); border: 1px dashed var(--gray-200); border-radius: 4px;
+}
+.slot-reset-icon {
+  margin-left: 4px; font-size: 11px; color: var(--optum-orange);
+  cursor: pointer; opacity: 0.7;
+}
+.slot-reset-icon:hover { opacity: 1; }
+
 /* ── Week / Month Grid ───────────────────────────────────────── */
 .period-grid-wrap {
   overflow-x: auto;
@@ -1885,7 +1902,7 @@ function defaultState() {
   const staff = JSON.parse(JSON.stringify(DEFAULT_STAFF));
   const statuses = {};
   staff.forEach(s => { statuses[s.id] = 'working'; });
-  return { staff, statuses, log: [], schedule: {}, nextId: 100 };
+  return { staff, statuses, log: [], schedule: {}, slotOverrides: {}, nextId: 100 };
 }
 
 function generateDemoData() {
@@ -2028,6 +2045,7 @@ function migrateState(s) {
       });
     });
   }
+  if (!s.slotOverrides) s.slotOverrides = {};
   return s;
 }
 
@@ -2246,8 +2264,52 @@ function getPersonShift(personId, date) {
 function isPersonOnShiftAtSlot(personId, date, slotHour) {
   const shift = getPersonShift(personId, date);
   const tmpl = SHIFT_TEMPLATES[shift];
-  if (!tmpl || tmpl.start === null) return false;
-  return slotHour >= tmpl.start && slotHour < tmpl.end;
+  const baseOn = (tmpl && tmpl.start !== null) ? (slotHour >= tmpl.start && slotHour < tmpl.end) : false;
+  if (hasSlotOverride(personId, date, slotHour)) return !baseOn;
+  return baseOn;
+}
+
+function hasSlotOverride(personId, date, slotHour) {
+  const mk = dateKey(date);
+  const day = date.getDate();
+  const o = state.slotOverrides;
+  return !!(o[mk] && o[mk][personId] && o[mk][personId][day] && o[mk][personId][day][slotHour]);
+}
+
+function toggleSlotOverride(personId, date, slotHour) {
+  if (!canEditPerson(personId)) return;
+  const mk = dateKey(date);
+  const day = date.getDate();
+  const o = state.slotOverrides;
+  if (!o[mk]) o[mk] = {};
+  if (!o[mk][personId]) o[mk][personId] = {};
+  if (!o[mk][personId][day]) o[mk][personId][day] = {};
+  if (o[mk][personId][day][slotHour]) {
+    delete o[mk][personId][day][slotHour];
+    // Clean up empty nested objects
+    if (!Object.keys(o[mk][personId][day]).length) delete o[mk][personId][day];
+    if (!Object.keys(o[mk][personId]).length) delete o[mk][personId];
+    if (!Object.keys(o[mk]).length) delete o[mk];
+  } else {
+    o[mk][personId][day][slotHour] = true;
+  }
+}
+
+function clearSlotOverrides(personId, date) {
+  const mk = dateKey(date);
+  const day = date.getDate();
+  const o = state.slotOverrides;
+  if (!o[mk] || !o[mk][personId] || !o[mk][personId][day]) return;
+  delete o[mk][personId][day];
+  if (!Object.keys(o[mk][personId]).length) delete o[mk][personId];
+  if (!Object.keys(o[mk]).length) delete o[mk];
+}
+
+function personHasOverridesForDay(personId, date) {
+  const mk = dateKey(date);
+  const day = date.getDate();
+  const o = state.slotOverrides;
+  return !!(o[mk] && o[mk][personId] && o[mk][personId][day] && Object.keys(o[mk][personId][day]).length);
 }
 
 // Collapsed department sections per view
@@ -2299,6 +2361,7 @@ function selectShift(newShift) {
   ensureMonthSchedule(pickerDate);
   const day = pickerDate.getDate();
   state.schedule[key][pickerPersonId][day] = newShift;
+  clearSlotOverrides(pickerPersonId, pickerDate);
   saveState();
   closeShiftPicker();
   renderGrid();
@@ -2461,17 +2524,22 @@ function renderDayView() {
     if (pharmacists.length) {
       html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacists</td></tr>';
       pharmacists.forEach(p => {
-        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        const hasOvr = personHasOverridesForDay(p.id, viewDate);
+        const resetIcon = hasOvr ? '<span class="slot-reset-icon" data-reset-person="' + p.id + '" data-reset-date="' + dateStr + '" title="Reset slot overrides">&#8634;</span>' : '';
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + resetIcon + '</td>';
         TIME_SLOTS.forEach((slot, idx) => {
           const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
+          const ovr = hasSlotOverride(p.id, viewDate, slot);
           const isCurrent = idx === currentSlotIdx;
           const cls = 'shift-toggle-cell' + (isCurrent ? ' current-slot-cell' : '');
           if (on) {
             const shift = getPersonShift(p.id, viewDate);
             const letter = SHIFT_TEMPLATES[shift]?.short || '';
-            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="shift-cell on shift-' + shift + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
+            const ovrCls = ovr ? ' slot-override slot-override-added' : '';
+            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"><span class="shift-cell on shift-' + shift + ovrCls + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
           } else {
-            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="shift-cell off"></span></td>';
+            const ovrCls = ovr ? ' slot-override slot-override-removed' : '';
+            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"><span class="shift-cell off' + ovrCls + '"></span></td>';
           }
         });
         html += '</tr>';
@@ -2482,17 +2550,22 @@ function renderDayView() {
     if (techs.length) {
       html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (TIME_SLOTS.length + 1) + '">Pharmacy Technicians</td></tr>';
       techs.forEach(p => {
-        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        const hasOvr = personHasOverridesForDay(p.id, viewDate);
+        const resetIcon = hasOvr ? '<span class="slot-reset-icon" data-reset-person="' + p.id + '" data-reset-date="' + dateStr + '" title="Reset slot overrides">&#8634;</span>' : '';
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + resetIcon + '</td>';
         TIME_SLOTS.forEach((slot, idx) => {
           const on = isPersonOnShiftAtSlot(p.id, viewDate, slot);
+          const ovr = hasSlotOverride(p.id, viewDate, slot);
           const isCurrent = idx === currentSlotIdx;
           const cls = 'shift-toggle-cell' + (isCurrent ? ' current-slot-cell' : '');
           if (on) {
             const shift = getPersonShift(p.id, viewDate);
             const letter = SHIFT_TEMPLATES[shift]?.short || '';
-            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="shift-cell on shift-' + shift + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
+            const ovrCls = ovr ? ' slot-override slot-override-added' : '';
+            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"><span class="shift-cell on shift-' + shift + ovrCls + '"><span class="shift-cell-label">' + letter + '</span></span></td>';
           } else {
-            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '"><span class="shift-cell off"></span></td>';
+            const ovrCls = ovr ? ' slot-override slot-override-removed' : '';
+            html += '<td class="' + cls + '" data-toggle-person="' + p.id + '" data-toggle-date="' + dateStr + '" data-toggle-slot="' + slot + '"><span class="shift-cell off' + ovrCls + '"></span></td>';
           }
         });
         html += '</tr>';
@@ -2508,10 +2581,27 @@ function renderDayView() {
     cell.addEventListener('click', () => openStatusModal(cell.dataset.person));
   });
 
-  // Click on shift cell → open shift picker
+  // Click on reset icon → clear all slot overrides for that person/day
+  area.querySelectorAll('.slot-reset-icon[data-reset-person]').forEach(icon => {
+    icon.addEventListener('click', e => {
+      e.stopPropagation();
+      const personId = icon.dataset.resetPerson;
+      const date = parseDateAttr(icon.dataset.resetDate);
+      const person = state.staff.find(s => s.id === personId);
+      clearSlotOverrides(personId, date);
+      saveState(); renderGrid(); renderOverall();
+      showToast((person ? person.name : 'Staff') + ' — slot overrides reset');
+    });
+  });
+
+  // Click on shift cell → toggle individual half-hour slot
   area.querySelectorAll('td.shift-toggle-cell[data-toggle-person]').forEach(cell => {
     cell.addEventListener('click', () => {
-      openShiftPicker(cell.dataset.togglePerson, parseDateAttr(cell.dataset.toggleDate), cell);
+      const personId = cell.dataset.togglePerson;
+      const date = parseDateAttr(cell.dataset.toggleDate);
+      const slotHour = parseFloat(cell.dataset.toggleSlot);
+      toggleSlotOverride(personId, date, slotHour);
+      saveState(); renderGrid(); renderOverall();
     });
   });
 
@@ -3039,6 +3129,9 @@ function renderSchedule() {
       if (!state.schedule[k]) state.schedule[k] = {};
       if (!state.schedule[k][sel.dataset.person]) state.schedule[k][sel.dataset.person] = {};
       state.schedule[k][sel.dataset.person][parseInt(sel.dataset.day)] = sel.value;
+      // Clear any slot overrides for this person/day (they no longer apply to the new shift)
+      const ovrDate = new Date(scheduleYear, scheduleMonth, parseInt(sel.dataset.day));
+      clearSlotOverrides(sel.dataset.person, ovrDate);
       // Update visual color
       sel.className = 'shift-select shift-' + sel.value;
       saveState();

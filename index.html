@@ -576,36 +576,7 @@ body {
 }
 .admin-panel-header .btn-close:hover { background: var(--gray-100); }
 
-.admin-tabs {
-  display: flex;
-  gap: 0;
-  padding: 16px 20px 0;
-  position: sticky;
-  top: 56px;
-  background: var(--white);
-  z-index: 1;
-}
-
-.admin-tab {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  background: none;
-  color: var(--gray-300);
-  border-bottom: 2px solid transparent;
-  transition: color .15s;
-  font-family: inherit;
-  min-height: 48px;
-}
-.admin-tab:hover { color: var(--gray-500); }
-.admin-tab.active { color: var(--optum-orange); border-bottom-color: var(--optum-orange); }
-
 .admin-content { padding: 20px; }
-
-.admin-section { display: none; }
-.admin-section.active { display: block; }
 
 /* Staff management */
 .staff-table {
@@ -691,98 +662,6 @@ body {
 }
 .btn-primary:hover { background: var(--optum-orange-dark); }
 .btn-primary:active { transform: scale(.97); }
-
-/* Schedule */
-.schedule-controls {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.schedule-month-nav {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.schedule-month-nav button {
-  width: 36px; height: 36px;
-  border-radius: var(--radius);
-  border: 1px solid var(--gray-100);
-  background: var(--white);
-  cursor: pointer;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background .15s;
-  font-family: inherit;
-}
-.schedule-month-nav button:hover { background: var(--gray-50); }
-
-.schedule-month-nav .month-label {
-  font-weight: 700;
-  font-size: 15px;
-  min-width: 150px;
-  text-align: center;
-  color: var(--optum-blue);
-}
-
-.schedule-dept-section { margin-bottom: 24px; }
-.schedule-dept-section h3 {
-  font-size: 14px; font-weight: 700;
-  color: var(--gray-600);
-  margin-bottom: 10px;
-  padding-left: 4px;
-}
-
-.schedule-grid { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-.schedule-table {
-  border-collapse: collapse;
-  font-size: 12px;
-  min-width: 100%;
-}
-
-.schedule-table th {
-  padding: 6px 2px;
-  border-bottom: 2px solid var(--gray-100);
-  font-size: 10px;
-  text-align: center;
-  color: var(--gray-300);
-  font-weight: 600;
-  white-space: nowrap;
-  position: sticky;
-  top: 0;
-  background: var(--white);
-}
-
-.schedule-table th.name-col {
-  text-align: left;
-  min-width: 120px;
-  left: 0;
-  z-index: 1;
-}
-
-.schedule-table td {
-  padding: 3px 2px;
-  border-bottom: 1px solid var(--gray-50);
-  text-align: center;
-}
-
-.schedule-table td.name-cell {
-  text-align: left;
-  font-weight: 500;
-  font-size: 12px;
-  position: sticky;
-  left: 0;
-  background: var(--white);
-  z-index: 1;
-  padding-left: 4px;
-  white-space: nowrap;
-}
 
 /* ── Mobile Bottom Nav ───────────────────────────────────────── */
 .bottom-nav {
@@ -889,6 +768,64 @@ body {
   .date-nav { padding: 8px 12px; gap: 6px; }
 }
 
+/* ── Confirm Dialog ────────────────────────────────────────── */
+.confirm-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.4);
+  z-index: 400;
+  align-items: center;
+  justify-content: center;
+}
+.confirm-overlay.open { display: flex; }
+.confirm-dialog {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  padding: 24px;
+  max-width: 360px;
+  width: 90%;
+  animation: confirmIn .2s var(--ease-out);
+}
+@keyframes confirmIn {
+  from { transform: scale(.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.confirm-message {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.confirm-btn {
+  padding: 8px 20px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--gray-100);
+  font-family: inherit;
+  transition: background .15s;
+}
+.confirm-cancel {
+  background: var(--white);
+  color: var(--gray-500);
+}
+.confirm-cancel:hover { background: var(--gray-50); }
+.confirm-ok {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+.confirm-ok:hover { background: var(--red-border); border-color: var(--red-border); }
+
 /* ── Toast Notification ──────────────────────────────────────── */
 .toast {
   position: fixed;
@@ -897,21 +834,44 @@ body {
   transform: translateX(-50%) translateY(20px);
   background: var(--optum-blue);
   color: #fff;
-  padding: 12px 20px;
+  padding: 12px 32px 12px 20px;
   border-radius: var(--radius-full);
   font-size: 13px;
   font-weight: 600;
   box-shadow: var(--shadow-lg);
   opacity: 0;
   pointer-events: none;
-  transition: all .3s var(--ease-spring);
+  transition: opacity .3s var(--ease-out), transform .3s var(--ease-spring);
   z-index: 300;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .toast.show {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
 }
+.toast.fade-out {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
+}
+.toast-close {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255,255,255,.7);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  font-family: inherit;
+}
+.toast-close:hover { color: #fff; }
 
 @media (min-width: 901px) {
   .toast { bottom: 32px; }
@@ -1000,6 +960,25 @@ body {
   transition: background .15s;
 }
 .date-nav .btn-today:hover { background: var(--optum-orange-light); }
+
+.date-nav .btn-apply-schedule {
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--optum-blue);
+  background: var(--white);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--optum-blue);
+  transition: background .15s;
+  margin-left: auto;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  justify-content: center;
+}
+.date-nav .btn-apply-schedule:hover { background: var(--optum-blue-bg); }
 
 /* ── Grid Legend ──────────────────────────────────────────────── */
 .grid-legend {
@@ -1369,25 +1348,19 @@ td.period-shift-cell:hover .psc-off { border: 1px dashed var(--gray-200); border
 .day-grid .dept-divider td:hover,
 .period-grid .dept-divider td:hover { background: var(--gray-100); }
 
-/* ── Shift Select (Admin schedule) ───────────────────────────── */
-.shift-select {
-  width: 38px;
-  height: 28px;
-  border-radius: 4px;
-  border: 1px solid var(--gray-100);
-  font-size: 11px;
-  font-weight: 700;
-  font-family: inherit;
-  text-align: center;
-  cursor: pointer;
-  padding: 0 2px;
-  appearance: none;
-  -webkit-appearance: none;
+/* ── Permission hints for techs ───────────────────────────────── */
+.name-cell.no-edit {
+  cursor: not-allowed !important;
+  opacity: 0.5;
 }
-.shift-select.shift-early    { background: #e0f0fe; color: var(--optum-blue); border-color: #93c5fd; }
-.shift-select.shift-standard { background: var(--green-bg); color: var(--green); border-color: var(--green-border); }
-.shift-select.shift-late     { background: var(--purple-bg); color: var(--purple); border-color: var(--purple-border); }
-.shift-select.shift-off      { background: var(--gray-50); color: var(--gray-300); border-color: var(--gray-100); }
+.period-shift-cell.no-edit {
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
+.shift-toggle-cell.no-edit {
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
 
 /* ── Guide Panel (Collapsible Legend) ──────────────────────────── */
 .guide-panel {
@@ -1513,37 +1486,9 @@ td.period-shift-cell:hover .psc-off { border: 1px dashed var(--gray-200); border
   background: var(--optum-orange-light) !important;
   color: var(--optum-orange) !important;
   font-weight: 800;
+  border-top: 3px solid var(--optum-orange);
 }
-.period-grid td.today-col { background: rgba(255, 97, 43, .04); }
-
-/* ── Admin Shift Legend ────────────────────────────────────────── */
-.admin-shift-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-  padding: 12px 16px;
-  background: var(--gray-50);
-  border-radius: var(--radius);
-  border: 1px solid var(--gray-100);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--gray-600);
-  align-items: center;
-}
-.admin-shift-legend .legend-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: var(--radius-full);
-  font-weight: 700;
-  font-size: 12px;
-}
-.admin-shift-legend .legend-chip.chip-early    { background: #e0f0fe; color: var(--optum-blue); }
-.admin-shift-legend .legend-chip.chip-standard { background: var(--green-bg); color: var(--green); }
-.admin-shift-legend .legend-chip.chip-late     { background: var(--purple-bg); color: var(--purple); }
-.admin-shift-legend .legend-chip.chip-off      { background: var(--gray-50); color: var(--gray-300); border: 1px solid var(--gray-100); }
+.period-grid td.today-col { background: rgba(255, 97, 43, .08); }
 
 /* ── Shift Picker Popup ───────────────────────────────────── */
 .shift-picker {
@@ -1555,9 +1500,32 @@ td.period-shift-cell:hover .psc-off { border: 1px dashed var(--gray-200); border
   box-shadow: 0 6px 24px rgba(0,0,0,.18);
   padding: 8px;
   gap: 6px;
-  flex-direction: row;
+  flex-direction: column;
 }
 .shift-picker.open { display: flex; }
+.shift-picker-buttons {
+  display: flex;
+  gap: 6px;
+}
+.shift-picker-apply-all {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--gray-500);
+  cursor: pointer;
+  border-top: 1px solid var(--gray-100);
+  margin-top: 2px;
+  padding-top: 6px;
+}
+.shift-picker-apply-all input[type="checkbox"] {
+  width: 14px; height: 14px;
+  margin: 0;
+  accent-color: var(--optum-orange);
+  cursor: pointer;
+}
 .shift-picker-btn {
   display: flex;
   flex-direction: column;
@@ -1629,6 +1597,7 @@ td.period-shift-cell:hover .psc-off { border: 1px dashed var(--gray-200); border
   <span class="date-label" id="dateLabel"></span>
   <button id="dateNext">&rarr;</button>
   <button class="btn-today" id="dateToday">Today</button>
+  <button class="btn-apply-schedule" id="applyScheduleBtn" style="display:none" title="Set today's statuses from the month schedule">Apply Schedule</button>
 </div>
 
 <!-- ── How to Read This Guide ────────────────────────────── -->
@@ -1756,15 +1725,11 @@ td.period-shift-cell:hover .psc-off { border: 1px dashed var(--gray-200); border
 <div class="admin-overlay" id="adminOverlay">
   <div class="admin-panel">
     <div class="admin-panel-header">
-      <h2>Administration</h2>
+      <h2>Staff Management</h2>
       <button class="btn-close" id="adminClose" aria-label="Close">&times;</button>
     </div>
-    <div class="admin-tabs">
-      <button class="admin-tab active" data-tab="staff">Staff</button>
-      <button class="admin-tab" data-tab="schedule">Schedule</button>
-    </div>
     <div class="admin-content">
-      <div class="admin-section active" id="adminStaff">
+      <div id="adminStaff" style="display:block">
         <table class="staff-table" id="staffTable">
           <thead><tr><th>Name</th><th>Role</th><th>Department</th><th>Default Shift</th><th></th></tr></thead>
           <tbody id="staffTableBody"></tbody>
@@ -1788,38 +1753,44 @@ td.period-shift-cell:hover .psc-off { border: 1px dashed var(--gray-200); border
           <button class="btn-primary" id="addStaffBtn">Add</button>
         </div>
       </div>
-      <div class="admin-section" id="adminSchedule">
-        <div class="schedule-controls">
-          <div class="schedule-month-nav">
-            <button id="prevMonth">&larr;</button>
-            <span class="month-label" id="scheduleMonthLabel"></span>
-            <button id="nextMonth">&rarr;</button>
-          </div>
-          <button class="btn-primary" id="applyScheduleBtn">Apply Today</button>
-        </div>
-        <div class="schedule-grid" id="scheduleGrid"></div>
-      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Confirm Dialog ─────────────────────────────────────── -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-dialog">
+    <p class="confirm-message" id="confirmMessage"></p>
+    <div class="confirm-actions">
+      <button class="confirm-btn confirm-cancel" id="confirmCancel">Cancel</button>
+      <button class="confirm-btn confirm-ok" id="confirmOk">Confirm</button>
     </div>
   </div>
 </div>
 
 <!-- ── Toast ───────────────────────────────────────────────── -->
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast"><span id="toastMsg"></span><button class="toast-close" id="toastClose">&times;</button></div>
 
 <!-- ── Shift Picker Popup ─────────────────────────────────── -->
 <div class="shift-picker" id="shiftPicker">
-  <button class="shift-picker-btn" data-shift="early">
-    <span class="spb-chip chip-early">E</span><span class="spb-label">Early</span>
-  </button>
-  <button class="shift-picker-btn" data-shift="standard">
-    <span class="spb-chip chip-standard">S</span><span class="spb-label">Standard</span>
-  </button>
-  <button class="shift-picker-btn" data-shift="late">
-    <span class="spb-chip chip-late">L</span><span class="spb-label">Late</span>
-  </button>
-  <button class="shift-picker-btn" data-shift="off">
-    <span class="spb-chip chip-off">&ndash;</span><span class="spb-label">Off</span>
-  </button>
+  <div class="shift-picker-buttons">
+    <button class="shift-picker-btn" data-shift="early">
+      <span class="spb-chip chip-early">E</span><span class="spb-label">Early</span>
+    </button>
+    <button class="shift-picker-btn" data-shift="standard">
+      <span class="spb-chip chip-standard">S</span><span class="spb-label">Standard</span>
+    </button>
+    <button class="shift-picker-btn" data-shift="late">
+      <span class="spb-chip chip-late">L</span><span class="spb-label">Late</span>
+    </button>
+    <button class="shift-picker-btn" data-shift="off">
+      <span class="spb-chip chip-off">&ndash;</span><span class="spb-label">Off</span>
+    </button>
+  </div>
+  <label class="shift-picker-apply-all" id="shiftPickerApplyAll" style="display:none">
+    <input type="checkbox" id="applyAllWeekdays">
+    <span>Apply to all weekdays &amp; set as default</span>
+  </label>
 </div>
 
 <script>
@@ -2166,6 +2137,13 @@ function canEditPerson(targetId) {
   return selectedId === targetId;
 }
 
+function isInTechMode() {
+  const selectedId = document.getElementById('roleSelect').value;
+  if (!selectedId) return false;
+  const u = state.staff.find(s => s.id === selectedId);
+  return u && u.role === 'tech';
+}
+
 // ═══════════════════════════════════════════════════════════════
 // UTILITIES
 // ═══════════════════════════════════════════════════════════════
@@ -2189,13 +2167,53 @@ function relativeTime(iso) {
   return days + 'd ago';
 }
 
+function showConfirm(message) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('confirmOverlay');
+    document.getElementById('confirmMessage').textContent = message;
+    overlay.classList.add('open');
+
+    function cleanup(result) {
+      overlay.classList.remove('open');
+      document.getElementById('confirmOk').removeEventListener('click', onOk);
+      document.getElementById('confirmCancel').removeEventListener('click', onCancel);
+      overlay.removeEventListener('click', onBackdrop);
+      resolve(result);
+    }
+    function onOk() { cleanup(true); }
+    function onCancel() { cleanup(false); }
+    function onBackdrop(e) { if (e.target === overlay) cleanup(false); }
+
+    document.getElementById('confirmOk').addEventListener('click', onOk);
+    document.getElementById('confirmCancel').addEventListener('click', onCancel);
+    overlay.addEventListener('click', onBackdrop);
+  });
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.remove('fade-out');
   t.classList.add('show');
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+  clearTimeout(t._fadeTimer);
+  t._timer = setTimeout(() => {
+    t.classList.add('fade-out');
+    t._fadeTimer = setTimeout(() => {
+      t.classList.remove('show', 'fade-out');
+    }, 300);
+  }, 3000);
 }
+
+document.getElementById('toastClose').addEventListener('click', () => {
+  const t = document.getElementById('toast');
+  clearTimeout(t._timer);
+  clearTimeout(t._fadeTimer);
+  t.classList.add('fade-out');
+  t._fadeTimer = setTimeout(() => {
+    t.classList.remove('show', 'fade-out');
+  }, 300);
+});
 
 // ═══════════════════════════════════════════════════════════════
 // LOG
@@ -2365,6 +2383,20 @@ function personHasOverridesForDay(personId, date) {
 
 // Collapsed department sections per view
 const collapsedDepts = { day: new Set(), month: new Set() };
+// Restore collapsed state from localStorage
+(function restoreCollapsedDepts() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('collapsedDepts') || '{}');
+    if (saved.day) saved.day.forEach(id => collapsedDepts.day.add(id));
+    if (saved.month) saved.month.forEach(id => collapsedDepts.month.add(id));
+  } catch(e) {}
+})();
+function saveCollapsedDepts() {
+  localStorage.setItem('collapsedDepts', JSON.stringify({
+    day: [...collapsedDepts.day],
+    month: [...collapsedDepts.month]
+  }));
+}
 
 // ── Shift Picker ─────────────────────────────────────────────
 let pickerPersonId = null;
@@ -2381,6 +2413,12 @@ function openShiftPicker(personId, date, anchorEl) {
     btn.classList.toggle('active', btn.dataset.shift === currentShift);
   });
 
+  // Show "Apply to all weekdays" checkbox only in month view
+  const applyAllRow = document.getElementById('shiftPickerApplyAll');
+  const applyAllCb = document.getElementById('applyAllWeekdays');
+  applyAllRow.style.display = currentView === 'month' ? '' : 'none';
+  applyAllCb.checked = false;
+
   // Position near the clicked cell
   const rect = anchorEl.getBoundingClientRect();
   let top = rect.bottom + 4;
@@ -2388,7 +2426,7 @@ function openShiftPicker(personId, date, anchorEl) {
 
   // Clamp to viewport
   const pw = picker.offsetWidth || 220;
-  const ph = picker.offsetHeight || 80;
+  const ph = picker.offsetHeight || 100;
   if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
   if (left < 8) left = 8;
   if (top + ph > window.innerHeight - 8) top = rect.top - ph - 4;
@@ -2408,16 +2446,57 @@ function selectShift(newShift) {
   if (!pickerPersonId || !pickerDate) return;
   const person = state.staff.find(s => s.id === pickerPersonId);
   if (!person) { closeShiftPicker(); return; }
-  const key = dateKey(pickerDate);
-  ensureMonthSchedule(pickerDate);
-  const day = pickerDate.getDate();
-  state.schedule[key][pickerPersonId][day] = newShift;
-  clearSlotOverrides(pickerPersonId, pickerDate);
-  saveState();
-  closeShiftPicker();
-  renderGrid();
-  renderOverall();
-  showToast(person.name + ' → ' + (newShift === 'off' ? 'Off' : SHIFT_TEMPLATES[newShift].label));
+
+  const applyAll = document.getElementById('applyAllWeekdays').checked && currentView === 'month';
+
+  if (applyAll) {
+    // 1. Update person's defaultShift
+    person.defaultShift = newShift;
+
+    // 2. Apply to all weekdays in current month
+    const year = pickerDate.getFullYear();
+    const month = pickerDate.getMonth();
+    const key = dateKey(pickerDate);
+    ensureMonthSchedule(pickerDate);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dow = new Date(year, month, d).getDay();
+      if (dow !== 0 && dow !== 6) {
+        state.schedule[key][pickerPersonId][d] = newShift;
+        clearSlotOverrides(pickerPersonId, new Date(year, month, d));
+      }
+    }
+
+    // 3. Delete future months so they regenerate with new default
+    const currentKey = key;
+    Object.keys(state.schedule).forEach(k => {
+      if (k > currentKey) delete state.schedule[k];
+    });
+
+    // Also clear future slotOverrides
+    Object.keys(state.slotOverrides || {}).forEach(k => {
+      if (k > currentKey) delete state.slotOverrides[k];
+    });
+
+    saveState();
+    closeShiftPicker();
+    renderGrid();
+    renderOverall();
+    const shiftLabel = newShift === 'off' ? 'Off' : SHIFT_TEMPLATES[newShift].label;
+    showToast(person.name + ' → ' + shiftLabel + ' (all weekdays + set as default)');
+  } else {
+    // Single day change (original behavior)
+    const key = dateKey(pickerDate);
+    ensureMonthSchedule(pickerDate);
+    const day = pickerDate.getDate();
+    state.schedule[key][pickerPersonId][day] = newShift;
+    clearSlotOverrides(pickerPersonId, pickerDate);
+    saveState();
+    closeShiftPicker();
+    renderGrid();
+    renderOverall();
+    showToast(person.name + ' → ' + (newShift === 'off' ? 'Off' : SHIFT_TEMPLATES[newShift].label));
+  }
 }
 
 // Wire picker button clicks
@@ -2692,9 +2771,27 @@ function renderDayView() {
       const view = row.dataset.collapseView;
       if (collapsedDepts[view].has(deptId)) collapsedDepts[view].delete(deptId);
       else collapsedDepts[view].add(deptId);
+      saveCollapsedDepts();
       renderGrid();
     });
   });
+
+  // Permission hints for techs (day view)
+  if (isInTechMode()) {
+    const techTip = 'You can only change your own status';
+    area.querySelectorAll('td.name-cell[data-person]').forEach(cell => {
+      if (!canEditPerson(cell.dataset.person)) {
+        cell.classList.add('no-edit');
+        cell.title = techTip;
+      }
+    });
+    area.querySelectorAll('td.shift-toggle-cell[data-toggle-person]').forEach(cell => {
+      if (!canEditPerson(cell.dataset.togglePerson)) {
+        cell.classList.add('no-edit');
+        cell.title = techTip;
+      }
+    });
+  }
 }
 
 function renderMonthView() {
@@ -2750,7 +2847,9 @@ function renderMonthView() {
     if (pharmacists.length) {
       html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (weekdays.length + 1) + '">Pharmacists</td></tr>';
       pharmacists.forEach(p => {
-        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        const defShift = p.defaultShift || 'standard';
+        const defBadge = '<span class="shift-badge sb-' + defShift + '">' + (SHIFT_TEMPLATES[defShift]?.short || 'S') + '</span>';
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + defBadge + '</td>';
         weekdays.forEach(d => {
           const isToday = d.toDateString() === todayStr;
           const isMonday = d.getDay() === 1;
@@ -2773,7 +2872,9 @@ function renderMonthView() {
     if (techs.length) {
       html += '<tr class="role-divider" data-dept-section="' + dept.id + '"' + hideAttr + '><td colspan="' + (weekdays.length + 1) + '">Pharmacy Technicians</td></tr>';
       techs.forEach(p => {
-        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + '</td>';
+        const defShift = p.defaultShift || 'standard';
+        const defBadge = '<span class="shift-badge sb-' + defShift + '">' + (SHIFT_TEMPLATES[defShift]?.short || 'S') + '</span>';
+        html += '<tr data-dept-section="' + dept.id + '"' + hideAttr + '><td class="name-cell" data-person="' + p.id + '">' + esc(p.name) + defBadge + '</td>';
         weekdays.forEach(d => {
           const isToday = d.toDateString() === todayStr;
           const isMonday = d.getDay() === 1;
@@ -2815,9 +2916,27 @@ function renderMonthView() {
       const view = row.dataset.collapseView;
       if (collapsedDepts[view].has(deptId)) collapsedDepts[view].delete(deptId);
       else collapsedDepts[view].add(deptId);
+      saveCollapsedDepts();
       renderGrid();
     });
   });
+
+  // Permission hints for techs
+  if (isInTechMode()) {
+    const techTip = 'You can only change your own status';
+    area.querySelectorAll('td.name-cell[data-person]').forEach(cell => {
+      if (!canEditPerson(cell.dataset.person)) {
+        cell.classList.add('no-edit');
+        cell.title = techTip;
+      }
+    });
+    area.querySelectorAll('td.period-shift-cell[data-toggle-person]').forEach(cell => {
+      if (!canEditPerson(cell.dataset.togglePerson)) {
+        cell.classList.add('no-edit');
+        cell.title = techTip;
+      }
+    });
+  }
 }
 
 function renderOverall() {
@@ -2920,6 +3039,12 @@ document.getElementById('statusModal').addEventListener('click', e => {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
+    // If confirm dialog is open, cancel it
+    const confirmOvl = document.getElementById('confirmOverlay');
+    if (confirmOvl.classList.contains('open')) {
+      document.getElementById('confirmCancel').click();
+      return;
+    }
     closeShiftPicker();
     closeStatusModal();
     document.getElementById('adminOverlay').classList.remove('open');
@@ -2933,7 +3058,6 @@ document.addEventListener('keydown', e => {
 
 function openAdmin() {
   renderStaffTable();
-  renderSchedule();
   document.getElementById('adminOverlay').classList.add('open');
 }
 
@@ -2951,15 +3075,6 @@ document.getElementById('adminOverlay').addEventListener('click', e => {
   }
 });
 
-document.querySelectorAll('.admin-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.tab === 'staff' ? 'adminStaff' : 'adminSchedule').classList.add('active');
-  });
-});
-
 function renderStaffTable() {
   const tbody = document.getElementById('staffTableBody');
   const shiftKeys = ['early', 'standard', 'late'];
@@ -2974,10 +3089,10 @@ function renderStaffTable() {
   }).join('');
 
   tbody.querySelectorAll('.btn-remove').forEach(btn => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const id = btn.dataset.id;
       const person = state.staff.find(s => s.id === id);
-      if (person && confirm('Remove ' + person.name + '?')) {
+      if (person && await showConfirm('Remove ' + person.name + '?')) {
         state.staff = state.staff.filter(s => s.id !== id);
         delete state.statuses[id];
         saveState();
@@ -3020,101 +3135,12 @@ document.getElementById('newName').addEventListener('keydown', e => {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// MONTHLY SCHEDULE
+// APPLY SCHEDULE (Month view → sync today's statuses)
 // ═══════════════════════════════════════════════════════════════
-
-let scheduleYear, scheduleMonth;
-(function initScheduleMonth() {
-  const now = new Date();
-  scheduleYear = now.getFullYear();
-  scheduleMonth = now.getMonth();
-})();
-
-document.getElementById('prevMonth').addEventListener('click', () => {
-  scheduleMonth--;
-  if (scheduleMonth < 0) { scheduleMonth = 11; scheduleYear--; }
-  renderSchedule();
-});
-
-document.getElementById('nextMonth').addEventListener('click', () => {
-  scheduleMonth++;
-  if (scheduleMonth > 11) { scheduleMonth = 0; scheduleYear++; }
-  renderSchedule();
-});
-
-function getScheduleKey(y, m) { return y + '-' + String(m + 1).padStart(2, '0'); }
-function getDaysInMonth(y, m) { return new Date(y, m + 1, 0).getDate(); }
-
-function renderSchedule() {
-  const key = getScheduleKey(scheduleYear, scheduleMonth);
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('scheduleMonthLabel').textContent = monthNames[scheduleMonth] + ' ' + scheduleYear;
-
-  const days = getDaysInMonth(scheduleYear, scheduleMonth);
-  // Auto-populate with defaultShift for weekdays
-  const schedDate = new Date(scheduleYear, scheduleMonth, 1);
-  ensureMonthSchedule(schedDate);
-  const sched = state.schedule[key];
-  const dayNames = ['S','M','T','W','T','F','S'];
-  const shiftKeys = ['early', 'standard', 'late', 'off'];
-  const grid = document.getElementById('scheduleGrid');
-  let html = '<div class="admin-shift-legend">'
-    + '<span style="font-weight:700;color:var(--gray-500)">Shift Key:</span>'
-    + '<span class="legend-chip chip-early">E = Early (7a&ndash;3p)</span>'
-    + '<span class="legend-chip chip-standard">S = Standard (8a&ndash;5p)</span>'
-    + '<span class="legend-chip chip-late">L = Late (10a&ndash;6p)</span>'
-    + '<span class="legend-chip chip-off">&ndash; = Off</span>'
-    + '</div>';
-
-  DEPARTMENTS.forEach(dept => {
-    const people = state.staff.filter(s => s.dept === dept.id);
-    if (!people.length) return;
-    html += '<div class="schedule-dept-section"><h3>' + esc(dept.name) + '</h3>';
-    html += '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="schedule-table"><thead><tr><th class="name-col">Name</th>';
-    for (let d = 1; d <= days; d++) {
-      const dow = new Date(scheduleYear, scheduleMonth, d).getDay();
-      const weekend = dow === 0 || dow === 6;
-      html += '<th style="' + (weekend ? 'color:var(--red);' : '') + '">' + d + '<br>' + dayNames[dow] + '</th>';
-    }
-    html += '</tr></thead><tbody>';
-
-    people.forEach(p => {
-      if (!sched[p.id]) sched[p.id] = {};
-      html += '<tr><td class="name-cell">' + esc(p.name) + '</td>';
-      for (let d = 1; d <= days; d++) {
-        const val = sched[p.id][d] || 'off';
-        html += '<td><select class="shift-select shift-' + val + '" data-person="' + p.id + '" data-day="' + d + '">';
-        shiftKeys.forEach(sk => {
-          html += '<option value="' + sk + '"' + (val === sk ? ' selected' : '') + '>' + SHIFT_TEMPLATES[sk].short + '</option>';
-        });
-        html += '</select></td>';
-      }
-      html += '</tr>';
-    });
-    html += '</tbody></table></div></div>';
-  });
-
-  grid.innerHTML = html;
-
-  grid.querySelectorAll('.shift-select').forEach(sel => {
-    sel.addEventListener('change', () => {
-      const k = getScheduleKey(scheduleYear, scheduleMonth);
-      if (!state.schedule[k]) state.schedule[k] = {};
-      if (!state.schedule[k][sel.dataset.person]) state.schedule[k][sel.dataset.person] = {};
-      state.schedule[k][sel.dataset.person][parseInt(sel.dataset.day)] = sel.value;
-      // Clear any slot overrides for this person/day (they no longer apply to the new shift)
-      const ovrDate = new Date(scheduleYear, scheduleMonth, parseInt(sel.dataset.day));
-      clearSlotOverrides(sel.dataset.person, ovrDate);
-      // Update visual color
-      sel.className = 'shift-select shift-' + sel.value;
-      saveState();
-    });
-  });
-}
 
 document.getElementById('applyScheduleBtn').addEventListener('click', () => {
   const now = new Date();
-  const key = getScheduleKey(now.getFullYear(), now.getMonth());
+  const key = dateKey(now);
   const day = now.getDate();
   ensureMonthSchedule(now);
   const sched = state.schedule[key];
@@ -3138,8 +3164,7 @@ document.getElementById('applyScheduleBtn').addEventListener('click', () => {
   });
 
   saveState();
-  showToast('Schedule applied \u2014 ' + applied + ' updated');
-  document.getElementById('adminOverlay').classList.remove('open');
+  showToast('Schedule applied — ' + applied + ' updated');
   render();
 });
 
@@ -3175,15 +3200,15 @@ document.querySelectorAll('.bottom-nav-item').forEach(btn => {
 
 document.getElementById('logMobileBackdrop').addEventListener('click', closeMobileLog);
 
-document.getElementById('clearLogBtn').addEventListener('click', () => {
-  if (confirm('Clear entire activity log?')) {
+document.getElementById('clearLogBtn').addEventListener('click', async () => {
+  if (await showConfirm('Clear entire activity log?')) {
     state.log = [];
     saveState();
     renderLog();
   }
 });
-document.getElementById('clearLogBtnMobile').addEventListener('click', () => {
-  if (confirm('Clear entire activity log?')) {
+document.getElementById('clearLogBtnMobile').addEventListener('click', async () => {
+  if (await showConfirm('Clear entire activity log?')) {
     state.log = [];
     saveState();
     renderLog();
@@ -3226,6 +3251,8 @@ document.getElementById('dateToday').addEventListener('click', () => {
 function renderGrid() {
   closeShiftPicker();
   updateDateLabel();
+  // Show Apply Schedule button only in month view
+  document.getElementById('applyScheduleBtn').style.display = currentView === 'month' ? '' : 'none';
   if (currentView === 'day') renderDayView();
   else renderMonthView();
 }
@@ -3250,8 +3277,8 @@ document.getElementById('guideToggle').addEventListener('click', () => {
   localStorage.setItem('guideCollapsed', panel.classList.contains('collapsed'));
 });
 
-// Restore guide collapse state (starts expanded on first visit)
-if (localStorage.getItem('guideCollapsed') === 'true') {
+// Restore guide collapse state (defaults to collapsed)
+if (localStorage.getItem('guideCollapsed') !== 'false') {
   document.getElementById('guidePanel').classList.add('collapsed');
 }
 

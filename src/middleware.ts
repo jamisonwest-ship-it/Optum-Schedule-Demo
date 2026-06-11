@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/auth/login", "/auth/callback"];
+// /api/cron/* authenticates with its own CRON_SECRET bearer token, not a session
+const PUBLIC_PATHS = ["/auth/login", "/auth/callback", "/api/cron"];
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });

@@ -14,7 +14,8 @@
 
 export const PRELAUNCH_ALLOWLIST = [
   "jamison.west@outlook.com", // Jamison — platform admin
-  "dr.monahan@yahoo.com", // Susie — primary stakeholder
+  "dr.monahan@yahoo.com", // Susie — primary stakeholder (personal)
+  "susie.monahan@optum.com", // Susie — work desktop login
 ];
 
 function activeAllowlist(): string[] | null {

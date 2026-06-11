@@ -137,6 +137,18 @@ values
    (select id from public.locations where code='SMRX'),
    true, 'Platform administrator — demo owner, not pharmacy staff.');
 
+-- Susie's Optum work login. Her pharmacist record (shifts, ratio) is the
+-- dr.monahan@yahoo.com row; this row exists only so she can sign in from
+-- her work desktop, where personal email is unavailable. staff_type=admin
+-- keeps it out of the ratio engine and scheduling grids.
+insert into public.staff
+  (email, full_name, preferred_name, app_role, staff_type, employment_type,
+   home_location_id, always_exclude_ratio, constraints_notes)
+values
+  ('susie.monahan@optum.com', 'Susan West', 'Susie', 'admin', 'admin', 'ft',
+   (select id from public.locations where code='SMMS'),
+   true, 'Work-desktop login for Susie. Pharmacist record = dr.monahan@yahoo.com row.');
+
 -- ============================================================
 -- SCHEDULES (June 2026)
 -- ============================================================

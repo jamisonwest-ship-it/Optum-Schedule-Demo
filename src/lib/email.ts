@@ -4,6 +4,7 @@
 
 import { Resend } from "resend";
 import { createServiceClient } from "@/lib/supabase/server";
+import { filterRecipients } from "@/lib/launch-gate";
 import type { Staff, TimeOffRequest } from "@/lib/types";
 import { displayName } from "@/lib/types";
 
@@ -46,21 +47,35 @@ interface SendArgs {
  * Send an email and record in-app notification rows.
  * Never throws — email failure must not break the underlying action.
  * Returns true when the email was accepted by Resend.
+ *
+ * PRE-LAUNCH GATE: every recipient is checked against the launch-gate
+ * allowlist. Blocked addresses are dropped before Resend is ever called —
+ * this is the single chokepoint for all outbound app email.
  */
 export async function sendNotificationEmail(args: SendArgs): Promise<boolean> {
+  const requested = Array.isArray(args.to) ? args.to : [args.to];
+  const { allowed, blocked } = filterRecipients(requested);
+  if (blocked.length > 0) {
+    console.warn(
+      `[launch-gate] Blocked email "${args.subject}" to: ${blocked.join(", ")}`
+    );
+  }
+
   let sent = false;
-  try {
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    const { error } = await resend.emails.send({
-      from: FROM(),
-      to: Array.isArray(args.to) ? args.to : [args.to],
-      subject: args.subject,
-      html: layout(args.title, args.bodyHtml),
-    });
-    if (error) console.error("Resend error:", error);
-    sent = !error;
-  } catch (err) {
-    console.error("Email send failed:", err);
+  if (allowed.length > 0) {
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      const { error } = await resend.emails.send({
+        from: FROM(),
+        to: allowed,
+        subject: args.subject,
+        html: layout(args.title, args.bodyHtml),
+      });
+      if (error) console.error("Resend error:", error);
+      sent = !error;
+    } catch (err) {
+      console.error("Email send failed:", err);
+    }
   }
 
   if (args.notify && args.notify.staffIds.length > 0) {

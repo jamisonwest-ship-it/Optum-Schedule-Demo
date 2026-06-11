@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { isEmailAllowed } from "@/lib/launch-gate";
 
 function LoginForm() {
   const params = useSearchParams();
@@ -17,11 +18,22 @@ function LoginForm() {
 
   async function sendLink(e: React.FormEvent) {
     e.preventDefault();
+    const cleanEmail = email.trim().toLowerCase();
+
+    // PRE-LAUNCH GATE: don't trigger sign-in emails to anyone outside the
+    // test group, even for addresses that exist on the roster.
+    if (!isEmailAllowed(cleanEmail)) {
+      setError(
+        "Sign-in is limited to test accounts during pre-launch. Contact your administrator."
+      );
+      return;
+    }
+
     setBusy(true);
     setError(null);
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },

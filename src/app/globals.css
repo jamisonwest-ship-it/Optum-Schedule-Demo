@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  /* Optum brand */
+  --color-optum-blue: #002677;
+  --color-optum-blue-dark: #00175a;
+  --color-optum-orange: #f5820d;
+
+  /* Ratio status colors */
+  --color-ratio-green: #118c4f;
+  --color-ratio-green-bg: #edf8f2;
+  --color-ratio-yellow: #c77700;
+  --color-ratio-yellow-bg: #fef6e8;
+  --color-ratio-red: #c42b1c;
+  --color-ratio-red-bg: #fdf0ee;
+
+  /* Optum avoids external fonts in internal tools — system stack */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+}

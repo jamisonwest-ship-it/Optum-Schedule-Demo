@@ -1,2 +1,28 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# env files — never commit secrets
+.env
+.env.local
+.env*.local
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# misc
 .DS_Store
 .claude/
+
+# local reference material — not part of the app
+/Older Excel Attempt/

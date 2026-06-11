@@ -127,6 +127,16 @@ select * from (
   ) as v(email, full_name, preferred_name, app_role, staff_type, employment_type, loc, dept, sup_dept, cap, excl, notes, waw)
 ) as rows;
 
+-- Platform admin (demo owner) — not pharmacy staff, never counts for ratio,
+-- no scheduled shifts. Deactivate after handoff to Susie if desired.
+insert into public.staff
+  (email, full_name, app_role, staff_type, employment_type, home_location_id,
+   always_exclude_ratio, constraints_notes)
+values
+  ('jamison.west@outlook.com', 'Jamison West', 'admin', 'admin', 'ft',
+   (select id from public.locations where code='SMRX'),
+   true, 'Platform administrator — demo owner, not pharmacy staff.');
+
 -- ============================================================
 -- SCHEDULES (June 2026)
 -- ============================================================

@@ -1,192 +1,65 @@
-# Optum Pharmacy Ratio Tracker
+# OptumRx Scheduling Platform
 
-A single-page demo app that tracks pharmacist-to-technician ratios across pharmacy departments. Built as a demo to show what Claude Code can build for Optum pharmacy operations.
+A web platform that replaces three disconnected pharmacy systems — Lucy's Excel
+pre-schedule, Jeremy's manual ratio spreadsheet, and When I Work — for two
+Optum pharmacy locations: **SMRX** (active) and **SMMS** (opening July 1, 2026).
 
-**Live:** Hosted via GitHub Pages on the `claude/pharmacy-ratio-tracker-ATufY` branch.
+**Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · Supabase
+(PostgreSQL + magic-link auth) · Resend (email) · Vercel
 
----
+## What it does
 
-## What It Does
+| Feature | Where | Who |
+|---|---|---|
+| **Ratio dashboard** — 28 half-hour slots, color-coded, three grids (SMRX main / SPC isolated / SMMS) | `/ratio` | Managers + pharmacists |
+| **Live status** — Working / Lunch / Meeting / Out / Non-Tech, recalculates ratio instantly | `/ratio` + `/my-schedule` | Everyone |
+| **Staff portal** — mobile-first: today's shift, one-tap status, week view, time-off + callout submission | `/my-schedule` | All staff (replaces When I Work) |
+| **Pre-scheduling** — monthly staff × days grid, draft → publish workflow, PTO overlay, 40-hr overtime flags | `/schedule` | Lucy + tech supervisors |
+| **Request queue** — one-click approve/deny, emails the requester | `/requests` | Managers |
+| **Setup** — roster, configurable work types (all ratio rules live in data), locations | `/setup` | Admin |
 
-Pharmacies must maintain a legal ratio of technicians to pharmacists (max 3 techs per 1 pharmacist). This app lets pharmacy managers:
+All ratio counting rules (which work types count, the IV before-8:30 exclusion,
+per-person always-exclude flags, SPC isolation) live in database tables — not
+code. The activity log is append-only.
 
-1. **See ratio health across the day** — a schedule grid shows when people are working and whether the pharmacy is in/out of ratio at each 30-minute time slot
-2. **Track real-time status** — click a person's name to mark them as Working, Lunch, Meeting, Out, or Non-Tech
-3. **Manage schedules** — assign shift templates (Early/Standard/Late/Off) per person per day
-4. **View ratio trends** — Week and Month views show ratio health over time
+## Local development
 
-## Architecture
-
-**Single file:** Everything lives in `index.html` — HTML, CSS, and JavaScript. No build step, no dependencies, no framework. Just open it in a browser.
-
-**State:** All data persists in `localStorage` under the key `pharmacyRatioTracker`. Clearing localStorage resets to demo defaults.
-
----
-
-## Key Concepts
-
-### Departments
-Three pharmacy departments, each with pharmacists and technicians:
-- **Home Infusion** — 5 pharmacists, 15 techs
-- **Hospice** — 5 pharmacists, 15 techs
-- **Specialty Pharmacy** — 5 pharmacists, 15 techs
-
-### Ratio Rules
-- `techs > pharmacists x 3` → **RED** (over ratio)
-- `techs = pharmacists x 3` → **YELLOW** (at limit)
-- `techs < pharmacists x 3 - 1` → **GREEN** (within ratio)
-- `0 pharmacists + any techs` → **RED** (no supervision)
-
-### Shift Templates
-Each person has a `defaultShift` and can be assigned a shift per day:
-
-| Shift    | Short | Hours         |
-|----------|-------|---------------|
-| Early    | E     | 7:00 AM – 3:00 PM |
-| Standard | S     | 8:00 AM – 5:00 PM |
-| Late     | L     | 10:00 AM – 6:00 PM |
-| Off      | –     | Not working    |
-
-### Time Slots
-The day is divided into **20 half-hour blocks** from 7:00 AM to 5:00 PM (last slot starts at 4:30 PM). Each slot's ratio status is calculated based on who is on shift at that time.
-
----
-
-## Page Structure
-
-### Top Bar
-- Optum branding (blue bar with orange logo)
-- "Your Name" dropdown — select yourself to restrict which staff you can edit (techs can only edit their own status; pharmacists can edit anyone)
-- Admin gear icon — opens admin panel
-
-### Overall Ratio Banner
-Real-time ratio across all departments. Shows green/yellow/red status with RPh:Tech counts.
-
-### View Tabs (Day / Week / Month)
-Tabbed navigation with date prev/next/today controls.
-
-#### Day View (default)
-- Rows = staff members, grouped by department (pharmacists on top, techs below)
-- Columns = 30-minute time blocks (7:00 AM – 4:30 PM)
-- **Column headers are colored** by ratio status at that time slot (green/yellow/red)
-- Each cell shows a blue block if the person is on shift, empty if not
-- Click a person's name → opens status change modal
-
-#### Week View
-- Monday–Friday columns
-- One row per department
-- Each cell colored by the **worst ratio status** across all time slots that day
-
-#### Month View
-- All weekdays in the month as columns
-- One row per department
-- Each cell colored by worst ratio status for that day
-
-### Activity Log
-- Desktop: sidebar on the right
-- Mobile: slide-out panel from bottom nav
-- Records every status change with timestamp
-
-### Admin Panel (modal)
-Two tabs:
-
-#### Staff Tab
-- Table of all staff with Name, Role, Department, Default Shift, Remove button
-- Add-staff form at bottom (name, role, department, default shift)
-- Changing default shift persists immediately
-
-#### Schedule Tab
-- Month navigator (prev/next)
-- Per-person, per-day shift dropdowns: E (Early), S (Standard), L (Late), – (Off)
-- Color-coded by shift type (blue=early, green=standard, purple=late, gray=off)
-- "Apply Today" button — sets everyone's real-time status based on today's schedule (shift assigned → Working, off → Out)
-- Auto-populates new months using each person's `defaultShift` for weekdays, Off for weekends
-
----
-
-## Data Model (in `state`)
-
-```
-state = {
-  staff: [
-    { id, name, role, dept, defaultShift }
-  ],
-  statuses: {
-    [personId]: 'working' | 'lunch' | 'meeting' | 'out' | 'nontech'
-  },
-  schedule: {
-    '2026-02': {           // year-month key
-      [personId]: {
-        1: 'standard',     // day number → shift key
-        2: 'early',
-        3: 'off',
-        ...
-      }
-    }
-  },
-  log: [
-    { time, name, dept, from, to }
-  ],
-  nextId: 100
-}
+```bash
+npm install
+cp .env.local.example .env.local   # then fill in real values
+npm run dev                         # http://localhost:3102
 ```
 
-## Key Functions
+## First-time setup (in order)
 
-| Function | Purpose |
-|----------|---------|
-| `renderGrid()` | Main dispatcher — calls Day/Week/Month view based on `currentView` |
-| `renderDayView()` | Builds the 30-min slot grid with ratio-colored headers |
-| `renderWeekView()` | Mon–Fri grid with worst-ratio colored cells per dept |
-| `renderMonthView()` | All weekdays grid with worst-ratio colored cells per dept |
-| `calcSlotRatio(deptId, date, slotHour)` | Returns ratio status for one dept at one time slot |
-| `getWorstDayStatus(deptId, date)` | Checks all 20 slots, returns worst status |
-| `isPersonOnShiftAtSlot(personId, date, slotHour)` | Whether a person's shift covers a given time |
-| `ensureMonthSchedule(date)` | Auto-populates missing month data from defaultShift |
-| `migrateState(s)` | Converts old boolean schedule → shift strings |
-| `renderSchedule()` | Admin schedule tab with shift dropdowns |
-| `renderStaffTable()` | Admin staff tab with default shift column |
-| `openStatusModal(personId)` | Status change bottom sheet |
-| `calcDeptRatio(deptId)` | Real-time ratio for overall banner |
-| `calcOverall()` | Aggregate ratio across all departments |
+1. **Database** — Supabase Dashboard → SQL Editor, run in order:
+   1. `supabase/migrations/001_schema.sql` (tables + RLS)
+   2. `supabase/migrations/002_seed.sql` (45 staff, work types, June demo week)
+2. **Vercel env vars** — Settings → Environment Variables, all environments:
+   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+   `SUPABASE_SERVICE_ROLE_KEY`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`,
+   `NEXT_PUBLIC_APP_URL`
+3. **Supabase Auth URLs** — Authentication → URL Configuration:
+   - Site URL: your production URL
+   - Redirect URLs: add `http://localhost:3102/**` and `https://<your-app>.vercel.app/**`
+4. **(Recommended) Resend SMTP for login emails** — Supabase's built-in email
+   sender is limited to ~2 emails/hour, which will break a live demo.
+   Authentication → SMTP Settings → enable custom SMTP:
+   host `smtp.resend.com`, port `465`, user `resend`, password = the
+   `RESEND_API_KEY`, sender `schedule@jamisonwest.ai`.
 
-## CSS Organization
+## Logging in
 
-All styles are in the `<style>` block, organized by section:
-- Reset & Base / CSS Variables
-- Top Bar / Overall Banner
-- Main Layout / Log Panel
-- Status Modal / Admin Panel
-- Mobile Bottom Nav / Mobile Log Overlay
-- View Tabs / Date Navigation / Grid Legend
-- Day Grid / Week-Month Grid
-- Shift Select (admin dropdowns)
-- Toast / Footer
-- Responsive breakpoints (900px, 480px)
+Magic-link only (no passwords). The email must match a row in `staff`.
+Seeded logins that work out of the box: `jamison.west@outlook.com` (admin),
+`dr.monahan@yahoo.com` (Susie, admin), `lucy.kim@optum.com` (scheduler).
+Staff rows with `@example.com` placeholder emails can't log in until their
+real address is set in `/setup`.
 
-## Mobile Support
+## Notes
 
-- Responsive at 900px breakpoint (stacked layout, bottom nav appears)
-- Horizontal scroll on grids with sticky name columns
-- Touch-optimized targets (min 44px)
-- Mobile log overlay (slide from right)
-- Safe area insets for notched phones
-
----
-
-## How to Run
-
-Just open `index.html` in any browser. No server needed.
-
-To reset all data: open browser console and run:
-```js
-localStorage.removeItem('pharmacyRatioTracker');
-location.reload();
-```
-
-## Tech
-
-- Zero dependencies — vanilla HTML/CSS/JS
-- Inter font from Google Fonts
-- localStorage for persistence
-- No build step, no bundler, no framework
+- `_legacy_demo.html` is the original single-file demo — reference only.
+- `Older Excel Attempt/` is prior source material (gitignored).
+- Email accounts: this project sends via the **jamisonwest.ai** Resend account
+  (`jamison.west@outlook.com`) — never the thewest.casa account.
+- Keep API routes ≤ 10 (Vercel Hobby function limit); currently 8.
